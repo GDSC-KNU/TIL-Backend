@@ -6,6 +6,7 @@ import gdsc.knu.til.exception.InvalidParamException;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleInvalidParamException(InvalidParamException ex) {
 		log.error("handleInvalidParamException : {}", ex.getErrorCode());
 		return ErrorResponse.toResponseEntity(ex.getErrorCode());
+	}
+	
+	@ExceptionHandler(value = { HttpMessageNotReadableException.class })
+	public ResponseEntity<ErrorResponse> handleConvertRequestException(HttpMessageNotReadableException ex) {
+		log.error("handleConvertRequestException : {}", ex.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_PARAM);
 	}
 
 	@ExceptionHandler(Exception.class)
