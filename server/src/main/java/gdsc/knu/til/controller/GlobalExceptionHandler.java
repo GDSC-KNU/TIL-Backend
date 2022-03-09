@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_PARAM);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleException(Exception ex){
-		log.error("handleException : {}", ex.getMessage());
-		return ErrorResponse.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
-	}
+//	@ExceptionHandler(Exception.class)
+//	public ResponseEntity<ErrorResponse> handleException(Exception ex){
+//		log.error("handleException : {}", ex.getMessage());
+//		return ErrorResponse.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
+//	}
 }
