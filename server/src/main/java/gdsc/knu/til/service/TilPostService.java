@@ -20,9 +20,15 @@ public class TilPostService {
 
 	@Transactional
 	public Long create(TilPostCreateRequest requestDto) {
-		return tilPostRepository.save(requestDto.toEntity()).getId();
+		TilPost tilPost = TilPost.builder()
+				.title(requestDto.getTitle())
+				.content(requestDto.getContent())
+				.date(requestDto.getDate())
+				.build();
+		
+		return tilPostRepository.save(tilPost).getId();
 	}
-	
+
 	@Transactional(readOnly = true)
 	public Optional<TilPostResponse> findById(Long id) {
 		Optional<TilPost> tilPostOpt = tilPostRepository.findById(id);

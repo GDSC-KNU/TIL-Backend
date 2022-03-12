@@ -12,7 +12,7 @@ public class TilPostResponse {
 	private final LocalDate date;
 	private final String content;
 	
-	// TODO 작성자 정보와 카테고리 정보를 포함해야 함
+	// TODO 작성자 정보를 포함해야 함
 	
 	public TilPostResponse(TilPost tilPost) {
 		this.id = tilPost.getId();

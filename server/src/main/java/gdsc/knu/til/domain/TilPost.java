@@ -1,16 +1,12 @@
 package gdsc.knu.til.domain;
 
-import java.time.LocalDate;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,7 +16,6 @@ public class TilPost {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="til_post_id")
 	private Long id;
 	
 	@Column(length = 50, nullable = false)
@@ -35,10 +30,6 @@ public class TilPost {
 	// 작성한 유저 정보
 	// @ManyToOne
 	// private User클래스 author;
-	
-	// 속성 정보
-	// @ManyToMany
-	// private Set<Attribute> attribute;
 
 	@Builder
 	public TilPost(String title, LocalDate date, String content) {

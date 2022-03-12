@@ -23,16 +23,16 @@ public class TilPostController {
 
 	@PostMapping("/til-post")
 	public ResponseEntity<Long> create(
-		@Valid @RequestBody TilPostCreateRequest requestDto,
-		BindingResult bindingResult) {
-		
+			@Valid @RequestBody TilPostCreateRequest requestDto,
+			BindingResult bindingResult) {
+
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
 		}
-		
+
 		return ResponseEntity.ok(tilPostService.create(requestDto));
 	}
-	
+
 	@GetMapping("/til-post/{id}")
 	public ResponseEntity<TilPostResponse> findById(@PathVariable Long id) {
 		// TODO 로그인 되어있는 유저의 정보를 가져와서 쿼리를 날려야 함. 

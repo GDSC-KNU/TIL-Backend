@@ -1,6 +1,5 @@
 package gdsc.knu.til.dto;
 
-import gdsc.knu.til.domain.TilPost;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -28,13 +27,5 @@ public class TilPostCreateRequest {
 	@Size(max=10000)
 	private String content;
 	
-	// TODO: author 필드와 attribute 필드가 필요하다.
-	
-	public TilPost toEntity() {
-		return TilPost.builder()
-				.title(title)
-				.date(date)
-				.content(content)
-				.build();
-	}
+	// TODO: author 필드가 필요하다.
 }
