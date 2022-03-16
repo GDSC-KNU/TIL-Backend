@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -60,4 +61,17 @@ public class TilPostController {
 
 		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPost));
 	}
+	
+	@Tag(name = "Til Post")
+	@Operation(summary = "til 게시글 목록 조회", description = "로그인된 유저의 til 게시글 목록을 조회한다.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "til 게시글 목록을 응답으로 보낸다.")
+	})
+	@GetMapping("/til-post")
+	public ResponseEntity<TilPostDto.ListResponse> findAll() {
+		List<TilPostDto.Info> tilPosts = tilPostService.findAll();
+		
+		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
+	}
+	
 }

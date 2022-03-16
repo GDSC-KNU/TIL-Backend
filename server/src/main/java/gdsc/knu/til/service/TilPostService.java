@@ -6,7 +6,9 @@ import gdsc.knu.til.repository.TilPostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TilPostService {
@@ -36,6 +38,13 @@ public class TilPostService {
 		}
 
 		return Optional.of(new TilPostDto.Info(tilPostOpt.get()));
+	}
+	
+	@Transactional(readOnly = true)
+	public List<TilPostDto.Info> findAll() {
+		List<TilPost> tilPosts = tilPostRepository.findAll();
+		
+		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
 	}
 	
 //	@Transactional
