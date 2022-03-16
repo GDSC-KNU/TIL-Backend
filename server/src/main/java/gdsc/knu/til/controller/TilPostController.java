@@ -1,7 +1,6 @@
 package gdsc.knu.til.controller;
 
-import gdsc.knu.til.dto.TilPostCreateRequest;
-import gdsc.knu.til.dto.TilPostResponse;
+import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.exception.InvalidParamException;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.service.TilPostService;
@@ -36,7 +35,7 @@ public class TilPostController {
 	@ResponseStatus(value = HttpStatus.CREATED)
 	@PostMapping("/til-post")
 	public ResponseEntity<Long> create(
-			@Valid @RequestBody TilPostCreateRequest requestDto,
+			@Valid @RequestBody TilPostDto.Request requestDto,
 			BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
@@ -54,11 +53,11 @@ public class TilPostController {
 			@ApiResponse(responseCode = "404", description = "해당 til 게시글이 존재하지 않는다.")
 	})
 	@GetMapping("/til-post/{id}")
-	public ResponseEntity<TilPostResponse> findById(@PathVariable Long id) {
+	public ResponseEntity<TilPostDto.DetailResponse> findById(@PathVariable Long id) {
 		// TODO 로그인 되어있는 유저의 정보를 가져와서 쿼리를 날려야 함. 
 		//  다른 사람껄 들고오면 안되니깐..!
-		TilPostResponse tilPost = tilPostService.findById(id).orElseThrow(TilPostNotFoundException::new);
+		TilPostDto.Info tilPost = tilPostService.findById(id).orElseThrow(TilPostNotFoundException::new);
 
-		return ResponseEntity.ok(tilPost);
+		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPost));
 	}
 }

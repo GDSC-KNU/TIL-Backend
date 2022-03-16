@@ -1,8 +1,7 @@
 package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
-import gdsc.knu.til.dto.TilPostCreateRequest;
-import gdsc.knu.til.dto.TilPostResponse;
+import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.repository.TilPostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,7 @@ public class TilPostService {
 	}
 
 	@Transactional
-	public Long create(TilPostCreateRequest requestDto) {
+	public Long create(TilPostDto.Request requestDto) {
 		TilPost tilPost = TilPost.builder()
 				.title(requestDto.getTitle())
 				.content(requestDto.getContent())
@@ -30,12 +29,15 @@ public class TilPostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<TilPostResponse> findById(Long id) {
+	public Optional<TilPostDto.Info> findById(Long id) {
 		Optional<TilPost> tilPostOpt = tilPostRepository.findById(id);
 		if (tilPostOpt.isEmpty()) {
 			return Optional.empty();
 		}
 
-		return Optional.of(new TilPostResponse(tilPostOpt.get()));
+		return Optional.of(new TilPostDto.Info(tilPostOpt.get()));
 	}
+	
+//	@Transactional
+//	public Optional<Long> edit()
 }
