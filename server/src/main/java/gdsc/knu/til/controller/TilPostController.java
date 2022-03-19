@@ -95,4 +95,21 @@ public class TilPostController {
 
 		return ResponseEntity.ok(editedPostId);
 	}
+	
+	@Tag(name = "Til Post")
+	@Operation(summary = "til 게시물 삭제", description = "해당 til 게시물을 삭제한다.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "해당 게시글을 삭제하였다."),
+			@ApiResponse(responseCode = "400", description = "부적절한 파라미터 - id 값은 정수이다."),
+			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
+	})
+	@DeleteMapping("/til-post/{id}")
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		if (tilPostService.delete(id)) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			throw new TilPostNotFoundException();
+		}
+	}
 }
