@@ -30,7 +30,7 @@ public class TilPostController {
 	@Tag(name = "Til Post")
 	@Operation(summary = "til 게시글 생성", description = "til 게시글을 생성한다.")
 	@ApiResponses({
-			@ApiResponse(responseCode = "201", description = "til 게시글을 정상적으로 만듬. 해당 게시글의 id를 응답으로 보낸다."),
+			@ApiResponse(responseCode = "201", description = "게시글을 정상적으로 만듬. 해당 게시글의 id를 응답으로 보낸다."),
 			@ApiResponse(responseCode = "400", description = "정상적이지 않은 요청 파라미터")
 	})
 	@ResponseStatus(value = HttpStatus.CREATED)
@@ -45,13 +45,13 @@ public class TilPostController {
 
 		return ResponseEntity.status(201).body(tilPostService.create(requestDto));
 	}
-	
+
 	@Tag(name = "Til Post")
 	@Operation(summary = "til 게시글 상세 조회", description = "til 게시글을 상세 조회한다.")
 	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "해당 til 게시글의 상세 정보를 응답으로 보낸다."),
+			@ApiResponse(responseCode = "200", description = "해당 게시글의 상세 정보를 응답으로 보낸다."),
 			@ApiResponse(responseCode = "400", description = "부적절한 파라미터 - id 값은 정수이다."),
-			@ApiResponse(responseCode = "404", description = "해당 til 게시글이 존재하지 않는다.")
+			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
 	})
 	@GetMapping("/til-post/{id}")
 	public ResponseEntity<TilPostDto.DetailResponse> findById(@PathVariable Long id) {
@@ -61,11 +61,11 @@ public class TilPostController {
 
 		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPost));
 	}
-	
+
 	@Tag(name = "Til Post")
-	@Operation(summary = "til 게시글 목록 조회", description = "로그인된 유저의 til 게시글 목록을 조회한다.")
+	@Operation(summary = "til 게시글 목록 조회", description = "로그인된 유저의 게시글 목록을 조회한다.")
 	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "til 게시글 목록을 응답으로 보낸다.")
+			@ApiResponse(responseCode = "200", description = "게시글 목록을 응답으로 보낸다.")
 	})
 	@GetMapping("/til-post")
 	public ResponseEntity<TilPostDto.ListResponse> findAll() {
@@ -73,5 +73,26 @@ public class TilPostController {
 		
 		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
 	}
-	
+
+	@Tag(name = "Til Post")
+	@Operation(summary = "til 게시물 수정", description = "해당 til 게시글을 수정한다.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "해당 게시글의 id를 응답으로 보낸다."),
+			@ApiResponse(responseCode = "400", description = "부적절한 파라미터 - id 값은 정수이다."),
+			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
+	})
+	@PutMapping("/til-post/{id}")
+	public ResponseEntity<Long> edit(
+			@PathVariable Long id,
+			@Valid @RequestBody TilPostDto.Request requestDto,
+			BindingResult bindingResult) {
+		
+		if (bindingResult.hasErrors()) {
+			throw new InvalidParamException();
+		}
+
+		Long editedPostId = tilPostService.edit(id, requestDto).orElseThrow(TilPostNotFoundException::new);
+
+		return ResponseEntity.ok(editedPostId);
+	}
 }

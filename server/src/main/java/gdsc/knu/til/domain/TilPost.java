@@ -37,4 +37,10 @@ public class TilPost {
 		this.date = date;
 		this.content = content;
 	}
+	
+	public void changeInfo(String title, LocalDate date, String content) {
+		this.title = title;
+		this.date = date;
+		this.content = content;
+	}
 }

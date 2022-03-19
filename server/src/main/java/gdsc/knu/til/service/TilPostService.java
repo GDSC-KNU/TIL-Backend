@@ -47,6 +47,20 @@ public class TilPostService {
 		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
 	}
 	
-//	@Transactional
-//	public Optional<Long> edit()
+	@Transactional
+	public Optional<Long> edit(Long postId, TilPostDto.Request requestDto) {
+		Optional<TilPost> tilPostOptional = tilPostRepository.findById(postId);
+		if (tilPostOptional.isEmpty()) {
+			return Optional.empty();
+		}
+		TilPost tilPost = tilPostOptional.get();
+		
+		tilPost.changeInfo(
+				requestDto.getTitle(),
+				requestDto.getDate(),
+				requestDto.getContent()
+		);
+		
+		return Optional.of(tilPostRepository.save(tilPost).getId());
+	}
 }
