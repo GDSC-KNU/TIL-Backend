@@ -13,7 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -105,14 +109,54 @@ class TilPostServiceTest {
 		// when
 		Optional<TilPostDto.Info> tilPostInfoOptional = tilPostService.findById(request);
 
-		System.out.println("tilPostInfoOptional = " + tilPostInfoOptional);
-
 		// then
 		assertThat(tilPostInfoOptional).isEmpty();
 	}
 
 	@Test
-	void findAll() {
+	@DisplayName("모든 게시글을 담은 List를 반환한다.")
+	void findAllIfExists() {
+		// given
+		List<TilPost> tilPosts = LongStream
+				.range(1, 6)
+				.mapToObj(id -> {
+					TilPost tilPost = fixtureTilPost(id);
+					ReflectionTestUtils.setField(tilPost, "id", id);
+					return tilPost;
+				})
+				.collect(Collectors.toList());
+
+		given(tilPostRepository.findAll())
+				.willReturn(tilPosts);
+
+		// when
+		List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+		
+		// then
+		List<TilPostDto.Info> expectedTilPostInfos = tilPosts
+				.stream()
+				.map(TilPostDto.Info::new)
+				.collect(Collectors.toList());
+
+		assertThat(tilPostInfos)
+				.hasSize(expectedTilPostInfos.size())
+				.hasSameElementsAs(expectedTilPostInfos);
+	}
+
+	@Test
+	@DisplayName("게시글이 없다면, 빈 List를 반환한다.")
+	void findAllIfNotExists() {
+		// given
+		List<TilPost> tilPosts = new ArrayList<>();
+
+		given(tilPostRepository.findAll())
+				.willReturn(tilPosts);
+
+		// when
+		List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+
+		// then
+		assertThat(tilPostInfos).isEmpty();
 	}
 
 	@Test

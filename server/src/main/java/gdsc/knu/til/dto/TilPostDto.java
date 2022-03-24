@@ -15,6 +15,7 @@ public class TilPostDto {
 
 	@Schema(description = "Til 게시물 상세 정보 DTO")
 	@Getter
+	@EqualsAndHashCode
 	public static class Info {
 		@Schema(description = "게시물 id")
 		private final Long id;
