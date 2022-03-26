@@ -160,6 +160,7 @@ class TilPostServiceTest {
 	}
 
 	@Test
+	@DisplayName("게시글을 수정할 수 있다.")
 	void edit() {
 		// given
 		Long postId = 1L;
