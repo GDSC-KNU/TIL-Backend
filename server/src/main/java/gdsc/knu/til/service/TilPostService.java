@@ -63,13 +63,10 @@ public class TilPostService {
 	}
 	
 	@Transactional
-	public boolean delete(Long postId) {
-		Optional<TilPost> tilPost = tilPostRepository.findById(postId);
-		if (tilPost.isEmpty()) {
-			return false;
-		}
+	public void delete(Long postId) {
+		TilPost tilPost = tilPostRepository.findById(postId)
+				.orElseThrow(TilPostNotFoundException::new);
 		
-		tilPostRepository.delete(tilPost.get());
-		return true;
+		tilPostRepository.delete(tilPost);
 	}
 }

@@ -21,6 +21,9 @@ import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class TilPostServiceTest {
@@ -199,7 +202,31 @@ class TilPostServiceTest {
 	}
 
 	@Test
+	@DisplayName("해당하는 게시글을 삭제한다.")
 	void delete() {
+		// given
+		Long postId = 1L;
+
+		TilPost tilPost = fixtureTilPost();
+		ReflectionTestUtils.setField(tilPost, "id", postId);
+
+
+		// Mocking
+		willDoNothing().given(tilPostRepository)
+				.delete(BDDMockito.isA(TilPost.class));
+		given(tilPostRepository.findById(postId))
+				.willReturn(Optional.of(tilPost))
+				.willReturn(Optional.empty());
+
+		// when
+		tilPostService.delete(postId);
+
+
+		// then
+		Optional<TilPost> deletedPost = tilPostRepository.findById(postId);
+
+		assertThat(deletedPost).isEmpty();
+		verify(tilPostRepository, times(1)).delete(BDDMockito.isA(TilPost.class));
 	}
 
 	private TilPost fixtureTilPost() {

@@ -103,11 +103,8 @@ public class TilPostController {
 	})
 	@DeleteMapping("/til-post/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
-		if (tilPostService.delete(id)) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			throw new TilPostNotFoundException();
-		}
+		tilPostService.delete(id);
+				
+		return ResponseEntity.ok().build();
 	}
 }
