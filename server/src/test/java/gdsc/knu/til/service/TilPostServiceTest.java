@@ -2,6 +2,7 @@ package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.dto.TilPostDto;
+import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
@@ -33,7 +36,7 @@ class TilPostServiceTest {
 
 	@Mock(lenient = true)
 	private TilPostRepository tilPostRepository;
-
+	
 	@Test
 	@DisplayName("요청을 기반으로 til 게시글을 생성한다.")
 	void create() {
@@ -163,7 +166,7 @@ class TilPostServiceTest {
 	}
 
 	@Test
-	@DisplayName("게시글을 수정할 수 있다.")
+	@DisplayName("해당하는 게시글을 수정할 수 있다.")
 	void edit() {
 		// given
 		Long postId = 1L;
@@ -202,6 +205,29 @@ class TilPostServiceTest {
 	}
 
 	@Test
+	@DisplayName("해당하는 게시글이 없다면, TilPostNotFoundException를 Throw한다.")
+	void editIfNotExists() {
+		// given
+		Long postId = 1L;
+		TilPostDto.Request request = fixtureTilPostRequest(
+				"update title",
+				"update content",
+				LocalDate.of(2222, 1, 1)
+		);
+
+		// Mocking
+		given(tilPostRepository.findById(anyLong()))
+				.willThrow(TilPostNotFoundException.class);
+
+		// when & then
+		assertThrows(TilPostNotFoundException.class, () -> {
+			tilPostService.edit(postId, request);
+		});
+		
+		verify(tilPostRepository, times(1)).findById(anyLong());
+	}
+	
+	@Test
 	@DisplayName("해당하는 게시글을 삭제한다.")
 	void delete() {
 		// given
@@ -227,6 +253,24 @@ class TilPostServiceTest {
 
 		assertThat(deletedPost).isEmpty();
 		verify(tilPostRepository, times(1)).delete(BDDMockito.isA(TilPost.class));
+	}
+
+	@Test
+	@DisplayName("해당하는 게시글이 없다면, TilPostNotFoundException를 Throw한다.")
+	void deleteIfNotExists() {
+		// given
+		Long postId = 1L;
+		
+		// Mocking
+		given(tilPostRepository.findById(postId))
+				.willReturn(Optional.empty());
+
+		// when & then
+		assertThrows(TilPostNotFoundException.class, () -> {
+			tilPostService.delete(postId);
+		});
+
+		verify(tilPostRepository, times(1)).findById(anyLong());
 	}
 
 	private TilPost fixtureTilPost() {

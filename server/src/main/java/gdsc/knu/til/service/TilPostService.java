@@ -63,7 +63,7 @@ public class TilPostService {
 	}
 	
 	@Transactional
-	public void delete(Long postId) {
+	public void delete(Long postId) throws TilPostNotFoundException {
 		TilPost tilPost = tilPostRepository.findById(postId)
 				.orElseThrow(TilPostNotFoundException::new);
 		
