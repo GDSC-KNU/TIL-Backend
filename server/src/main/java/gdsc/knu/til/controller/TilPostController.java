@@ -90,10 +90,8 @@ public class TilPostController {
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
 		}
-
-		Long editedPostId = tilPostService.edit(id, requestDto).orElseThrow(TilPostNotFoundException::new);
-
-		return ResponseEntity.ok(editedPostId);
+		
+		return ResponseEntity.ok(tilPostService.edit(id, requestDto));
 	}
 	
 	@Tag(name = "Til Post")

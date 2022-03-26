@@ -24,10 +24,10 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class TilPostServiceTest {
-	
+
 	@InjectMocks
 	private TilPostService tilPostService;
-	
+
 	@Mock(lenient = true)
 	private TilPostRepository tilPostRepository;
 
@@ -37,19 +37,19 @@ class TilPostServiceTest {
 		// given
 		TilPostDto.Request request = fixtureTilPostRequest();
 		TilPost tilPost = fixtureTilPost();
-		
+
 		Long postId = 1L;
 		ReflectionTestUtils.setField(tilPost, "id", postId);
-		
+
 		// Mocking
 		given(tilPostRepository.save(BDDMockito.isA(TilPost.class)))
 				.willReturn(tilPost);
 		given(tilPostRepository.findById(postId))
 				.willReturn(Optional.of(tilPost));
-		
+
 		// when
 		Long createdPostId = tilPostService.create(request);
-		
+
 		// then
 		TilPost createdPost = tilPostRepository.findById(createdPostId).orElseThrow();
 
@@ -68,11 +68,11 @@ class TilPostServiceTest {
 		Long post1Id = 1L;
 		TilPost tilPost1 = fixtureTilPost(post1Id);
 		ReflectionTestUtils.setField(tilPost1, "id", post1Id);
-		
+
 		Long post2Id = 2L;
 		TilPost tilPost2 = fixtureTilPost(post2Id);
 		ReflectionTestUtils.setField(tilPost2, "id", post2Id);
-		
+
 		given(tilPostRepository.findById(post1Id))
 				.willReturn(Optional.of(tilPost1));
 		given(tilPostRepository.findById(post2Id))
@@ -80,7 +80,7 @@ class TilPostServiceTest {
 
 		// when
 		Optional<TilPostDto.Info> tilPostInfoOptional = tilPostService.findById(request);
-		
+
 		// then
 		assertThat(tilPostInfoOptional).isNotEmpty();
 
@@ -92,7 +92,7 @@ class TilPostServiceTest {
 		assertThat(expectedTilPostInfo.getDate()).isEqualTo(actualTilPostInfo.getDate());
 		assertThat(expectedTilPostInfo.getContent()).isEqualTo(actualTilPostInfo.getContent());
 	}
-	
+
 	@Test
 	@DisplayName("요청된 id에 해당하는 til 게시글이 없다면, Optional.empty()를 반환한다.")
 	void findByIdIfNotExists() {
@@ -131,7 +131,7 @@ class TilPostServiceTest {
 
 		// when
 		List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
-		
+
 		// then
 		List<TilPostDto.Info> expectedTilPostInfos = tilPosts
 				.stream()
@@ -161,6 +161,40 @@ class TilPostServiceTest {
 
 	@Test
 	void edit() {
+		// given
+		Long postId = 1L;
+		TilPostDto.Request request = fixtureTilPostRequest(
+				"update title",
+				"update content",
+				LocalDate.of(2222, 1, 1)
+		);
+		TilPost tilPost = fixtureTilPost();
+		TilPost updatedPost = fixtureTilPost(
+				"update title",
+				"update content",
+				LocalDate.of(2222, 1, 1)
+		);
+
+		ReflectionTestUtils.setField(tilPost, "id", postId);
+		ReflectionTestUtils.setField(updatedPost, "id", postId);
+
+		// Mocking
+		given(tilPostRepository.save(BDDMockito.eq(updatedPost)))
+				.willReturn(updatedPost);
+		given(tilPostRepository.findById(postId))
+				.willReturn(Optional.of(tilPost))
+				.willReturn(Optional.of(updatedPost));
+
+		// when
+		Long editedPostId = tilPostService.edit(postId, request);
+
+		// then
+		TilPost editedPost = tilPostRepository.findById(editedPostId).orElseThrow();
+
+		assertThat(editedPost.getId()).isEqualTo(updatedPost.getId());
+		assertThat(editedPost.getTitle()).isEqualTo(updatedPost.getTitle());
+		assertThat(editedPost.getDate()).isEqualTo(updatedPost.getDate());
+		assertThat(editedPost.getContent()).isEqualTo(updatedPost.getContent());
 	}
 
 	@Test
@@ -168,27 +202,43 @@ class TilPostServiceTest {
 	}
 
 	private TilPost fixtureTilPost() {
-		return TilPost.builder()
-				.title("title")
-				.content("content")
-				.date(LocalDate.of(2022, 2, 22))
-				.build();
+		return fixtureTilPost(
+				"title",
+				"content",
+				LocalDate.of(2022, 2, 22)
+		);
 	}
-	
+
 	private TilPost fixtureTilPost(Long id) {
+		return fixtureTilPost(
+				"title" + id,
+				"content" + id,
+				LocalDate.of(2022, 2, 22)
+		);
+	}
+
+	private TilPost fixtureTilPost(String title, String content, LocalDate localDate) {
 		return TilPost.builder()
-				.title("title" + id)
-				.content("content" + id)
-				.date(LocalDate.of(2022, 2, 22))
+				.title(title)
+				.content(content)
+				.date(localDate)
 				.build();
 	}
-	
+
 	private TilPostDto.Request fixtureTilPostRequest() {
+		return fixtureTilPostRequest(
+				"title",
+				"content",
+				LocalDate.of(2022, 2, 22)
+		);
+	}
+
+	private TilPostDto.Request fixtureTilPostRequest(String title, String content, LocalDate localDate) {
 		return TilPostDto.Request
 				.builder()
-				.title("title")
-				.content("content")
-				.date(LocalDate.of(2022, 2, 22))
+				.title(title)
+				.content(content)
+				.date(localDate)
 				.build();
 	}
 }

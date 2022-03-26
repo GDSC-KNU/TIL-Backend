@@ -2,6 +2,7 @@ package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.dto.TilPostDto;
+import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,12 +49,9 @@ public class TilPostService {
 	}
 	
 	@Transactional
-	public Optional<Long> edit(Long postId, TilPostDto.Request requestDto) {
-		Optional<TilPost> tilPostOptional = tilPostRepository.findById(postId);
-		if (tilPostOptional.isEmpty()) {
-			return Optional.empty();
-		}
-		TilPost tilPost = tilPostOptional.get();
+	public Long edit(Long postId, TilPostDto.Request requestDto) throws TilPostNotFoundException {
+		TilPost tilPost = tilPostRepository.findById(postId)
+				.orElseThrow(TilPostNotFoundException::new);
 		
 		tilPost.changeInfo(
 				requestDto.getTitle(),
@@ -61,7 +59,7 @@ public class TilPostService {
 				requestDto.getContent()
 		);
 		
-		return Optional.of(tilPostRepository.save(tilPost).getId());
+		return tilPostRepository.save(tilPost).getId();
 	}
 	
 	@Transactional
