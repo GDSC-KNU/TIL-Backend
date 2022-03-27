@@ -7,6 +7,8 @@ import gdsc.knu.til.repository.TilPostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +46,16 @@ public class TilPostService {
 	@Transactional(readOnly = true)
 	public List<TilPostDto.Info> findAll() {
 		List<TilPost> tilPosts = tilPostRepository.findAll();
+
+		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
+	}
+	
+	@Transactional(readOnly = true)
+	public List<TilPostDto.Info> findByYearMonth(YearMonth yearMonth) {
+		LocalDate start = yearMonth.atDay(1);
+		LocalDate end = yearMonth.atEndOfMonth();
+		
+		List<TilPost> tilPosts = tilPostRepository.findByDateBetween(start, end);
 		
 		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
 	}

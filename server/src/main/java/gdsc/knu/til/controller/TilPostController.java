@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.YearMonth;
 import java.util.List;
 
 
@@ -68,8 +70,10 @@ public class TilPostController {
 			@ApiResponse(responseCode = "200", description = "게시글 목록을 응답으로 보낸다.")
 	})
 	@GetMapping("/til-post")
-	public ResponseEntity<TilPostDto.ListResponse> findAll() {
-		List<TilPostDto.Info> tilPosts = tilPostService.findAll();
+	public ResponseEntity<TilPostDto.ListResponse> findAll(
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
+			) {
+		List<TilPostDto.Info> tilPosts = tilPostService.findByYearMonth(yearMonth);
 		
 		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
 	}
