@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -73,12 +74,18 @@ public class TilPostController {
 	})
 	@GetMapping("/til-post")
 	public ResponseEntity<TilPostDto.ListResponse> findAll(
-			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM") Optional<YearMonth> yearMonth
 			) {
 		// TODO 로그인 정보를 기반으로 동작
 		
-		List<TilPostDto.Info> tilPosts = tilPostService.findByYearMonth(yearMonth);
-		
+		List<TilPostDto.Info> tilPosts;
+		if (yearMonth.isPresent()) {
+			tilPosts = tilPostService.findByYearMonth(yearMonth.get());
+		}
+		else {
+			tilPosts = tilPostService.findAll();
+		}
+
 		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
 	}
 
