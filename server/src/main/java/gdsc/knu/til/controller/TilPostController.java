@@ -41,6 +41,8 @@ public class TilPostController {
 			@Valid @RequestBody TilPostDto.Request requestDto,
 			BindingResult bindingResult) {
 
+		// TODO 로그인 정보를 기반으로 동작
+		
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
 		}
@@ -73,6 +75,8 @@ public class TilPostController {
 	public ResponseEntity<TilPostDto.ListResponse> findAll(
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
 			) {
+		// TODO 로그인 정보를 기반으로 동작
+		
 		List<TilPostDto.Info> tilPosts = tilPostService.findByYearMonth(yearMonth);
 		
 		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
@@ -90,6 +94,8 @@ public class TilPostController {
 			@PathVariable Long id,
 			@Valid @RequestBody TilPostDto.Request requestDto,
 			BindingResult bindingResult) {
+
+		// TODO 로그인 정보를 기반으로 동작
 		
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
@@ -107,6 +113,8 @@ public class TilPostController {
 	})
 	@DeleteMapping("/til-post/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		// TODO 로그인 정보를 기반으로 동작
+		
 		tilPostService.delete(id);
 				
 		return ResponseEntity.ok().build();
