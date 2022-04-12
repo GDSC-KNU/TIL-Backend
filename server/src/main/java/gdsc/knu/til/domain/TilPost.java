@@ -12,7 +12,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "til_post")
+@Table(name = "til_posts")
 public class TilPost {
 	
 	@Id
@@ -27,10 +27,10 @@ public class TilPost {
 
 	@Column(length = 10000, nullable = false)
 	private String content;
-	
-	// 작성한 유저 정보
-	// @ManyToOne
-	// private User클래스 author;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User author;
 
 	@Builder
 	public TilPost(String title, LocalDate date, String content) {
