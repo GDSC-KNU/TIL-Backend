@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    //private Long id;
     private String account;
 
     private String password;
@@ -29,6 +28,7 @@ public class User {
     }
 
     public void encryptPassword(PasswordEncoder passwordEncoder){
+
         password = passwordEncoder.encode(password);
     }
 }

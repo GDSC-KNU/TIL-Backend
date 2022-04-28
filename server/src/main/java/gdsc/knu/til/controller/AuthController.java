@@ -18,12 +18,12 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public String longin(@RequestBody JwtRequestDto request){
         return "login";
     }
 
-    @PostMapping(value = "signup", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
     public String signup(@RequestBody UserSignupRequestDto request) {
         return authService.signup(request);
     }
