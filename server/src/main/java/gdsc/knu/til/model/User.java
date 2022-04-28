@@ -1,20 +1,21 @@
-package gdsc.knu.til.domain;
+package gdsc.knu.til.model;
 import gdsc.knu.til.dto.UserSignupRequestDto;
-import gdsc.knu.til.model.Role;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.net.PasswordAuthentication;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@Data
 public class User {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String account;
 
     private String password;
