@@ -21,6 +21,8 @@ public class User {
 
     private LocalDateTime createdAt;
 
+    private Role
+
     public User(UserSignupRequestDto request){
         account = request.getAccount();
         password = request.getPassword();
