@@ -2,8 +2,7 @@ package gdsc.knu.til.service;
 
 import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
-import gdsc.knu.til.domain.User;
-import gdsc.knu.til.model.Role;
+import gdsc.knu.til.model.User;
 import gdsc.knu.til.repository.UserRepository;
 import gdsc.knu.til.security.UserDetailsImpl;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public String signup(UserSignupRequestDto request) {
-        boolean existMember = userRepository.existsById(request.getAccount());
+        boolean existMember = userRepository.existsByAccount(request.getAccount());
 
         // 이미 회원이 존재하는 경우
         if (existMember) return null;

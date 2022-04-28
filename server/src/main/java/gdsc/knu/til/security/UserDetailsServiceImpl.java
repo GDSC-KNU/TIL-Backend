@@ -1,6 +1,6 @@
 package gdsc.knu.til.security;
 
-import gdsc.knu.til.domain.User;
+import gdsc.knu.til.model.User;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
-        User user = userRepository.findById(account)
+        User user = userRepository.findByAccount(account)
                 .orElseThrow(()->new UsernameNotFoundException("등록되지 않은 사용자 입니다"));
 
         return new UserDetailsImpl(user);
