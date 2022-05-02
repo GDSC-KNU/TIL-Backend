@@ -19,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String longin(@RequestBody JwtRequestDto request){
+    public String login(@RequestBody JwtRequestDto request){
         try{
             return authService.login(request);
 

@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 @Setter
 public class UserSignupRequestDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String account;
 
     private String password;
