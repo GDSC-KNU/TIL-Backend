@@ -1,9 +1,12 @@
 package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
+import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
+import gdsc.knu.til.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,23 +17,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class TilPostService {
 
 	private final TilPostRepository tilPostRepository;
-
-	public TilPostService(TilPostRepository tilPostRepository) {
-		this.tilPostRepository = tilPostRepository;
-	}
-
+	private final UserRepository userRepository;
+	
 	@Transactional
-	public Long create(TilPostDto.Request requestDto) {
+	public TilPost create(TilPostDto.Request requestDto, Long userId) {
+		User user = userRepository.getById(userId);
+		
 		TilPost tilPost = TilPost.builder()
 				.title(requestDto.getTitle())
 				.content(requestDto.getContent())
 				.date(requestDto.getDate())
+				.author(user)
 				.build();
 		
-		return tilPostRepository.save(tilPost).getId();
+		return tilPostRepository.save(tilPost);
 	}
 
 	@Transactional(readOnly = true)

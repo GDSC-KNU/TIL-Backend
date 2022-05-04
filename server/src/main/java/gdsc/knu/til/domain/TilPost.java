@@ -33,10 +33,11 @@ public class TilPost {
 	private User author;
 
 	@Builder
-	public TilPost(String title, LocalDate date, String content) {
+	public TilPost(String title, LocalDate date, String content, User author) {
 		this.title = title;
 		this.date = date;
 		this.content = content;
+		this.author = author;
 	}
 	
 	public void changeInfo(String title, LocalDate date, String content) {

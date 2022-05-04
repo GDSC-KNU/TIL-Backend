@@ -1,9 +1,11 @@
 package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
+import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
+import gdsc.knu.til.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ class TilPostServiceTest {
 	@Mock(lenient = true)
 	private TilPostRepository tilPostRepository;
 	
+	@Mock(lenient = true)
+	private UserRepository userRepository;
+	
 	@Nested
 	@DisplayName("create")
 	class CreateTest {
@@ -48,27 +53,30 @@ class TilPostServiceTest {
 		void create() {
 			// given
 			TilPostDto.Request request = fixtureTilPostRequest();
-			TilPost tilPost = fixtureTilPost();
+			TilPost expectedPost = fixtureTilPost();
+			User user = fixtureUser();
 
+			Long userId = 1L;
 			Long postId = 1L;
-			ReflectionTestUtils.setField(tilPost, "id", postId);
+			ReflectionTestUtils.setField(expectedPost, "id", postId);
+			ReflectionTestUtils.setField(user, "id", userId);
 
 			// Mocking
 			given(tilPostRepository.save(BDDMockito.isA(TilPost.class)))
-					.willReturn(tilPost);
-			given(tilPostRepository.findById(postId))
-					.willReturn(Optional.of(tilPost));
+					.willAnswer(invocation -> {
+						TilPost mockTilPost = (TilPost) invocation.getArguments()[0];
+						ReflectionTestUtils.setField(mockTilPost, "id", postId);
+						return mockTilPost;
+					});
+			given(userRepository.getById(userId))
+					.willReturn(user);
+
 
 			// when
-			Long createdPostId = tilPostService.create(request);
+			TilPost createdPost = tilPostService.create(request, userId);
 
 			// then
-			TilPost createdPost = tilPostRepository.findById(createdPostId).orElseThrow();
-
-			assertThat(createdPost.getId()).isEqualTo(tilPost.getId());
-			assertThat(createdPost.getTitle()).isEqualTo(tilPost.getTitle());
-			assertThat(createdPost.getDate()).isEqualTo(tilPost.getDate());
-			assertThat(createdPost.getContent()).isEqualTo(tilPost.getContent());
+			assertThat(createdPost).isEqualTo(expectedPost);
 		}
 	}
 
@@ -323,9 +331,7 @@ class TilPostServiceTest {
 					.willThrow(TilPostNotFoundException.class);
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> {
-				tilPostService.edit(postId, request);
-			});
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.edit(postId, request));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
@@ -373,14 +379,23 @@ class TilPostServiceTest {
 					.willReturn(Optional.empty());
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> {
-				tilPostService.delete(postId);
-			});
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.delete(postId));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
 	}
 
+	private User fixtureUser() {
+		return fixtureUser("test123@test.com", "password1234");
+	}
+	
+	private User fixtureUser(String email, String password) {
+		return User.builder()
+				.email(email)
+				.password(password)
+				.build();
+	}
+	
 	private TilPost fixtureTilPost() {
 		return fixtureTilPost(
 				"title",

@@ -1,6 +1,7 @@
 package gdsc.knu.til.domain;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,6 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-
 	@Column(length = 20, nullable = false)
 	private String email;
 	
@@ -25,5 +25,11 @@ public class User {
 	private String password;
 
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private Set<TilPost> tilPosts = new LinkedHashSet<>();
+	private final Set<TilPost> tilPosts = new LinkedHashSet<>();
+
+	@Builder
+	public User(String email, String password) {
+		this.email = email;
+		this.password = password;
+	}
 }
