@@ -5,7 +5,9 @@ import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
 import gdsc.knu.til.service.AuthService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,18 +21,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String login(@RequestBody JwtRequestDto request){
+    public ResponseEntity login(@RequestBody JwtRequestDto request){
         try{
             return authService.login(request);
 
         }catch (Exception e){
-            return e.getMessage();
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
     }
 
     @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String signup(@RequestBody UserSignupRequestDto request) {
+    public ResponseEntity signup(@RequestBody UserSignupRequestDto request) {
         return authService.signup(request);
     }
 
