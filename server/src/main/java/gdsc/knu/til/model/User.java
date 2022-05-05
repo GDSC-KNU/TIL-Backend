@@ -8,8 +8,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class User {
 
     @Id
@@ -24,19 +27,6 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    public User(UserSignupRequestDto request){
-        account = request.getAccount();
-        password = request.getPassword();
-        createdAt = LocalDateTime.now();
-        role = Role.USER; //Role 기본값
-
-    }
-
-    public void encryptPassword(PasswordEncoder passwordEncoder){
-
-        password = passwordEncoder.encode(password);
-    }
 
     @Override
     public String toString() {
