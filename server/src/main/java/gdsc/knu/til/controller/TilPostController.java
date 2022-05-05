@@ -81,10 +81,7 @@ public class TilPostController {
 			@Parameter(description = "게시글을 가져올 달") 
 			@RequestParam(required = false)
 			@DateTimeFormat(pattern = "yyyy-MM") 
-					Optional<YearMonth> yearMonth,
-			@Parameter(description = "test", example = "zzzz")
-			@RequestParam() 
-					String test
+					Optional<YearMonth> yearMonth
 			) {
 		// TODO 로그인 정보를 기반으로 동작
 		// TODO JWT에서 유저 정보를 추출해내야함.
