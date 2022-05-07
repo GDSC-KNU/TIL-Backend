@@ -16,5 +16,8 @@ TIL 애플리케이션의 백엔드 영역
 ### Data
 - Python
 
+## Api 문서
+[PostMan API Document](https://documenter.getpostman.com/view/13315664/UyxdJogT)
+
 ## Git Strategy & Convention
 [Git Strategy & Convention Wiki](https://github.com/GDSC-KNU/TIL-Backend/wiki/Git-Strategy-&-Convention-Wiki)
