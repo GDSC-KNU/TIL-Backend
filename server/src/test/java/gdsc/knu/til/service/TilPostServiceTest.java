@@ -28,8 +28,8 @@ import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
@@ -54,6 +54,8 @@ class TilPostServiceTest {
 		user = fixtureUser();
 		Long userId = 1L;
 		ReflectionTestUtils.setField(user, "id", userId);
+
+		given(userRepository.getById(user.getId())).willReturn(user);
 	}
 	
 	@Nested
@@ -76,8 +78,6 @@ class TilPostServiceTest {
 						ReflectionTestUtils.setField(mockTilPost, "id", postId);
 						return mockTilPost;
 					});
-			given(userRepository.getById(user.getId()))
-					.willReturn(user);
 
 
 			// when
@@ -109,8 +109,6 @@ class TilPostServiceTest {
 						ReflectionTestUtils.setField(mockTilPost, "id", postId);
 						return mockTilPost;
 					});
-			given(userRepository.getById(user.getId()))
-					.willReturn(user);
 			
 			// when
 			Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
@@ -143,7 +141,7 @@ class TilPostServiceTest {
 					});
 			
 			// when
-			Optional<TilPost> postOptional = tilPostService.findByIdOfUser(postId, user.getId());
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(postId, user.getId());
 
 			// then
 			assertThat(postOptional).isNotEmpty();
@@ -166,7 +164,7 @@ class TilPostServiceTest {
 					.willReturn(Optional.of(tilPost));
 
 			// when
-			Optional<TilPost> postOptional = tilPostService.findByIdOfUser(requestPostId, user.getId());
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(requestPostId, user.getId());
 
 			// then
 			assertThat(postOptional).isEmpty();
@@ -184,7 +182,7 @@ class TilPostServiceTest {
 					.willReturn(Optional.of(tilPost));
 
 			// when
-			Optional<TilPost> postOptional = tilPostService.findByIdOfUser(postId, user.getId() + 1);
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(postId, user.getId() + 1);
 
 			// then
 			assertThat(postOptional).isEmpty();
@@ -207,21 +205,16 @@ class TilPostServiceTest {
 					})
 					.collect(Collectors.toList());
 
-			given(tilPostRepository.findAll())
+			given(tilPostRepository.findByAuthor(user))
 					.willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+			List<TilPost> posts = tilPostService.findAll(user.getId());
 
 			// then
-			List<TilPostDto.Info> expectedTilPostInfos = tilPosts
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-
-			assertThat(tilPostInfos)
-					.hasSize(expectedTilPostInfos.size())
-					.hasSameElementsAs(expectedTilPostInfos);
+			assertThat(posts)
+					.hasSize(tilPosts.size())
+					.hasSameElementsAs(tilPosts);
 		}
 
 		@Test
@@ -230,14 +223,14 @@ class TilPostServiceTest {
 			// given
 			List<TilPost> tilPosts = new ArrayList<>();
 
-			given(tilPostRepository.findAll())
+			given(tilPostRepository.findByAuthor(user))
 					.willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+			List<TilPost> posts = tilPostService.findAll(user.getId());
 
 			// then
-			assertThat(tilPostInfos).isEmpty();
+			assertThat(posts).isEmpty();
 		}
 	}
 
@@ -261,6 +254,7 @@ class TilPostServiceTest {
 						return tilPost;
 					})
 					.collect(Collectors.toList());
+			
 			List<TilPost> tilPostsOfMar = LongStream
 					.range(1, 6)
 					.mapToObj(id -> {
@@ -278,35 +272,28 @@ class TilPostServiceTest {
 			YearMonth feb2022 = YearMonth.of(2022, 2);
 			YearMonth feb2023 = YearMonth.of(2022, 3);
 
-			given(tilPostRepository.findByDateBetween(
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
 					BDDMockito.eq(feb2022.atDay(1)),
 					BDDMockito.eq(feb2022.atEndOfMonth())
 			)).willReturn(tilPostsOfFeb);
-			given(tilPostRepository.findByDateBetween(
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
 					BDDMockito.eq(feb2023.atDay(1)),
 					BDDMockito.eq(feb2023.atEndOfMonth())
 			)).willReturn(tilPostsOfMar);
 
 			// when
-			List<TilPostDto.Info> tilPostInfosOfFeb = tilPostService.findByYearMonth(feb2022);
-			List<TilPostDto.Info> tilPostInfosOfMar = tilPostService.findByYearMonth(feb2023);
+			List<TilPost> postsOfFeb = tilPostService.findByYearMonth(user.getId(), feb2022);
+			List<TilPost> postSOfMar = tilPostService.findByYearMonth(user.getId(), feb2023);
 
 			// then
-			List<TilPostDto.Info> expectedTilPostInfosOfFeb = tilPostsOfFeb
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-			List<TilPostDto.Info> expectedTilPostInfosOfMar = tilPostsOfMar
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-
-			assertThat(tilPostInfosOfFeb)
-					.hasSize(expectedTilPostInfosOfFeb.size())
-					.hasSameElementsAs(expectedTilPostInfosOfFeb);
-			assertThat(tilPostInfosOfMar)
-					.hasSize(expectedTilPostInfosOfMar.size())
-					.hasSameElementsAs(expectedTilPostInfosOfMar);
+			assertThat(postsOfFeb)
+					.hasSize(tilPostsOfFeb.size())
+					.hasSameElementsAs(tilPostsOfFeb);
+			assertThat(postSOfMar)
+					.hasSize(tilPostsOfMar.size())
+					.hasSameElementsAs(tilPostsOfMar);
 		}
 
 		@Test
@@ -317,14 +304,17 @@ class TilPostServiceTest {
 
 			YearMonth feb2022 = YearMonth.of(2022, 2);
 
-			given(tilPostRepository.findByDateBetween(any(), any()))
-					.willReturn(tilPosts);
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
+					BDDMockito.eq(feb2022.atDay(1)),
+					BDDMockito.eq(feb2022.atEndOfMonth())
+			)).willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findByYearMonth(feb2022);
+			List<TilPost> posts = tilPostService.findByYearMonth(user.getId(), feb2022);
 
 			// then
-			assertThat(tilPostInfos).isEmpty();
+			assertThat(posts).isEmpty();
 		}
 	}
 

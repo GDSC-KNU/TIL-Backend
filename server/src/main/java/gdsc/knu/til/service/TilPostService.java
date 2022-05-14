@@ -16,7 +16,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +25,8 @@ public class TilPostService {
 	private final UserRepository userRepository;
 	
 	@Transactional
-	public TilPost create(TilPostDto.Request requestDto, Long userId) throws DataIntegrityViolationException {
-		User user = userRepository.getById(userId);
+	public TilPost create(TilPostDto.Request requestDto, Long authorId) throws DataIntegrityViolationException {
+		User user = userRepository.getById(authorId);
 		
 		TilPost tilPost = TilPost.builder()
 				.title(requestDto.getTitle())
@@ -40,14 +39,14 @@ public class TilPostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<TilPost> findByIdOfUser(Long id, Long userId) {
+	public Optional<TilPost> findByIdOfAuthor(Long id, Long authorId) {
 		Optional<TilPost> tilPostOpt = tilPostRepository.findById(id);
 		if (tilPostOpt.isEmpty()) {
 			return Optional.empty();
 		}
 		
 		TilPost tilPost = tilPostOpt.get();
-		if (!Objects.equals(tilPost.getAuthor().getId(), userId)) {
+		if (!Objects.equals(tilPost.getAuthor().getId(), authorId)) {
 			return Optional.empty();
 		}
 		
@@ -55,20 +54,20 @@ public class TilPostService {
 	}
 	
 	@Transactional(readOnly = true)
-	public List<TilPostDto.Info> findAll() {
-		List<TilPost> tilPosts = tilPostRepository.findAll();
-
-		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
+	public List<TilPost> findAll(Long authorId) {
+		User author = userRepository.getById(authorId);
+		
+		return tilPostRepository.findByAuthor(author);
 	}
 	
 	@Transactional(readOnly = true)
-	public List<TilPostDto.Info> findByYearMonth(YearMonth yearMonth) {
+	public List<TilPost> findByYearMonth(Long authorId, YearMonth yearMonth) {
+		User author = userRepository.getById(authorId);
+
 		LocalDate start = yearMonth.atDay(1);
 		LocalDate end = yearMonth.atEndOfMonth();
 		
-		List<TilPost> tilPosts = tilPostRepository.findByDateBetween(start, end);
-		
-		return tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
+		return tilPostRepository.findByAuthorAndDateBetween(author, start, end);
 	}
 	
 	@Transactional

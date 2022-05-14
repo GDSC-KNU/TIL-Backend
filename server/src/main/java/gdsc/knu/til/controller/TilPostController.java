@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController()
@@ -69,7 +70,7 @@ public class TilPostController {
 		// TODO JWT에서 유저 정보를 추출해내야함.
 		long userId = 1L;
 		
-		TilPost tilPost = tilPostService.findByIdOfUser(id, userId).orElseThrow(TilPostNotFoundException::new);
+		TilPost tilPost = tilPostService.findByIdOfAuthor(id, userId).orElseThrow(TilPostNotFoundException::new);
 		TilPostDto.Info tilPostInfo = new TilPostDto.Info(tilPost);
 		
 		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPostInfo));
@@ -91,15 +92,16 @@ public class TilPostController {
 		// TODO JWT에서 유저 정보를 추출해내야함.
 		long userId = 1L;
 		
-		List<TilPostDto.Info> tilPosts;
+		List<TilPost> tilPosts;
 		if (yearMonth.isPresent()) {
-			tilPosts = tilPostService.findByYearMonth(yearMonth.get());
+			tilPosts = tilPostService.findByYearMonth(userId, yearMonth.get());
 		}
 		else {
-			tilPosts = tilPostService.findAll();
+			tilPosts = tilPostService.findAll(userId);
 		}
 
-		return ResponseEntity.ok(new TilPostDto.ListResponse(tilPosts));
+		List<TilPostDto.Info> postDtoInfos = tilPosts.stream().map(TilPostDto.Info::new).collect(Collectors.toList());
+		return ResponseEntity.ok(new TilPostDto.ListResponse(postDtoInfos));
 	}
 
 	@Tag(name = "Til Post")
