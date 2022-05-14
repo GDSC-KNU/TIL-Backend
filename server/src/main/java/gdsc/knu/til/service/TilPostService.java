@@ -7,12 +7,14 @@ import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ public class TilPostService {
 	private final UserRepository userRepository;
 	
 	@Transactional
-	public TilPost create(TilPostDto.Request requestDto, Long userId) {
+	public TilPost create(TilPostDto.Request requestDto, Long userId) throws DataIntegrityViolationException {
 		User user = userRepository.getById(userId);
 		
 		TilPost tilPost = TilPost.builder()
@@ -38,13 +40,18 @@ public class TilPostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<TilPostDto.Info> findById(Long id) {
+	public Optional<TilPost> findByIdOfUser(Long id, Long userId) {
 		Optional<TilPost> tilPostOpt = tilPostRepository.findById(id);
 		if (tilPostOpt.isEmpty()) {
 			return Optional.empty();
 		}
-
-		return Optional.of(new TilPostDto.Info(tilPostOpt.get()));
+		
+		TilPost tilPost = tilPostOpt.get();
+		if (!Objects.equals(tilPost.getAuthor().getId(), userId)) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(tilPost);
 	}
 	
 	@Transactional(readOnly = true)

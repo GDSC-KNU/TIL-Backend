@@ -1,5 +1,6 @@
 package gdsc.knu.til.controller;
 
+import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.exception.InvalidParamException;
 import gdsc.knu.til.exception.TilPostNotFoundException;
@@ -22,7 +23,7 @@ import java.util.Optional;
 
 
 @RestController()
-@RequestMapping("/post")
+@RequestMapping("/posts")
 @Tag(name = "Til Post", description = "Til 게시물 API")
 public class TilPostController {
 
@@ -46,7 +47,7 @@ public class TilPostController {
 
 		// TODO 로그인 정보를 기반으로 동작
 		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
+		long userId = 2L;
 		
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
@@ -64,11 +65,14 @@ public class TilPostController {
 	})
 	@GetMapping("/{id}")
 	public ResponseEntity<TilPostDto.DetailResponse> findById(@PathVariable Long id) {
-		// TODO 로그인 되어있는 유저의 정보를 가져와서 쿼리를 날려야 함. 
-		//  다른 사람껄 들고오면 안되니깐..!
-		TilPostDto.Info tilPost = tilPostService.findById(id).orElseThrow(TilPostNotFoundException::new);
-
-		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPost));
+		// TODO 로그인 정보를 기반으로 동작
+		// TODO JWT에서 유저 정보를 추출해내야함.
+		long userId = 1L;
+		
+		TilPost tilPost = tilPostService.findByIdOfUser(id, userId).orElseThrow(TilPostNotFoundException::new);
+		TilPostDto.Info tilPostInfo = new TilPostDto.Info(tilPost);
+		
+		return ResponseEntity.ok(new TilPostDto.DetailResponse(tilPostInfo));
 	}
 
 	@Tag(name = "Til Post")
