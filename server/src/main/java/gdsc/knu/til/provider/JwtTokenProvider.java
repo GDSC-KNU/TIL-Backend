@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +17,13 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-    private String secretKey = "TilBeGDSC";
+
+    @Value("{$spring.datasource.secretKey}")
+    private String secretKey ;
 
     private long tokenValidTime = 30 * 60 * 1000L; // 토큰 유효시간
     private final UserDetailsService userDetailsService;
