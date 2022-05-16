@@ -1,18 +1,18 @@
 package gdsc.knu.til.model;
-import gdsc.knu.til.dto.UserSignupRequestDto;
 import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
@@ -23,16 +23,13 @@ public class User {
 
     private String password;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime lastModifiedAt;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "account='" + account + '\'' +
-                ", role=" + role +
-                '}';
-    }
 }
