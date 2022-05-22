@@ -1,12 +1,10 @@
 package gdsc.knu.til.controller;
 
-import gdsc.knu.til.exception.ErrorCode;
-import gdsc.knu.til.exception.ErrorResponse;
-import gdsc.knu.til.exception.InvalidParamException;
-import gdsc.knu.til.exception.TilPostNotFoundException;
+import gdsc.knu.til.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -32,9 +30,15 @@ public class GlobalExceptionHandler {
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_PARAM);
 	}
 
-//	@ExceptionHandler(Exception.class)
-//	public ResponseEntity<ErrorResponse> handleException(Exception ex){
-//		log.error("handleException : {}", ex.getMessage());
-//		return ErrorResponse.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
-//	}
+	@ExceptionHandler(value = { MissingRequestValueException.class, MissingParamException.class })
+	public ResponseEntity<ErrorResponse> handleConvertRequestException(Exception ex) {
+		log.error("MissingRequestValueException : {}", ex.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.MISSING_PARAM);
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorResponse> handleException(Exception ex){
+		log.error("handleException : {}", ex.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
+	}
 }
