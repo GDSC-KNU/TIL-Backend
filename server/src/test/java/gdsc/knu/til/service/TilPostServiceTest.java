@@ -1,9 +1,12 @@
 package gdsc.knu.til.service;
 
 import gdsc.knu.til.domain.TilPost;
+import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
+import gdsc.knu.til.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -24,8 +28,8 @@ import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
@@ -40,6 +44,20 @@ class TilPostServiceTest {
 	@Mock(lenient = true)
 	private TilPostRepository tilPostRepository;
 	
+	@Mock(lenient = true)
+	private UserRepository userRepository;
+	
+	private User user;
+	
+	@BeforeEach
+	public void setupUser() {
+		user = fixtureUser();
+		Long userId = 1L;
+		ReflectionTestUtils.setField(user, "id", userId);
+
+		given(userRepository.getById(user.getId())).willReturn(user);
+	}
+	
 	@Nested
 	@DisplayName("create")
 	class CreateTest {
@@ -48,85 +66,126 @@ class TilPostServiceTest {
 		void create() {
 			// given
 			TilPostDto.Request request = fixtureTilPostRequest();
-			TilPost tilPost = fixtureTilPost();
 
+			TilPost expectedPost = fixtureTilPost(user);
 			Long postId = 1L;
-			ReflectionTestUtils.setField(tilPost, "id", postId);
+			ReflectionTestUtils.setField(expectedPost, "id", postId);
 
 			// Mocking
 			given(tilPostRepository.save(BDDMockito.isA(TilPost.class)))
-					.willReturn(tilPost);
-			given(tilPostRepository.findById(postId))
-					.willReturn(Optional.of(tilPost));
+					.willAnswer(invocation -> {
+						TilPost mockTilPost = (TilPost) invocation.getArguments()[0];
+						ReflectionTestUtils.setField(mockTilPost, "id", postId);
+						return mockTilPost;
+					});
+
 
 			// when
-			Long createdPostId = tilPostService.create(request);
+			TilPost createdPost = tilPostService.create(request, user.getId());
 
 			// then
-			TilPost createdPost = tilPostRepository.findById(createdPostId).orElseThrow();
+			assertThat(createdPost).isEqualTo(expectedPost);
+		}
+		
+		@Test
+		@DisplayName("인자로 넣어준 유저 아이디에 해당하는 유저가 없다면, 에러를 발생한다.")
+		void throwErrorIFNotExistsUser() {
+			// given
+			TilPostDto.Request request = fixtureTilPostRequest();
 
-			assertThat(createdPost.getId()).isEqualTo(tilPost.getId());
-			assertThat(createdPost.getTitle()).isEqualTo(tilPost.getTitle());
-			assertThat(createdPost.getDate()).isEqualTo(tilPost.getDate());
-			assertThat(createdPost.getContent()).isEqualTo(tilPost.getContent());
+			TilPost expectedPost = fixtureTilPost(user);
+			Long postId = 1L;
+			ReflectionTestUtils.setField(expectedPost, "id", postId);
+
+			// Mocking
+			given(tilPostRepository.save(BDDMockito.isA(TilPost.class)))
+					.willAnswer(invocation -> {
+						TilPost mockTilPost = (TilPost) invocation.getArguments()[0];
+						
+						if (mockTilPost.getAuthor() != user) {
+							throw new DataIntegrityViolationException("user not exists");
+						}
+						
+						ReflectionTestUtils.setField(mockTilPost, "id", postId);
+						return mockTilPost;
+					});
+			
+			// when
+			Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
+				tilPostService.create(request, user.getId() + 1);
+			});
+
+			// then
+			assertThat(exception.getMessage()).contains("user not exists");
 		}
 	}
 
 	@Nested
-	@DisplayName("findById")
+	@DisplayName("findByIdOfUser")
 	class FindByIdTest {
 		@Test
 		@DisplayName("요청된 id에 해당하는 til 게시글을 가져온다.")
 		void returnTilPost() {
 			// given
-			Long request = 1L;
-
-			Long post1Id = 1L;
-			TilPost tilPost1 = fixtureTilPost(post1Id);
-			ReflectionTestUtils.setField(tilPost1, "id", post1Id);
-
-			Long post2Id = 2L;
-			TilPost tilPost2 = fixtureTilPost(post2Id);
-			ReflectionTestUtils.setField(tilPost2, "id", post2Id);
-
-			given(tilPostRepository.findById(post1Id))
-					.willReturn(Optional.of(tilPost1));
-			given(tilPostRepository.findById(post2Id))
-					.willReturn(Optional.of(tilPost2));
-
+			Long postId = 1L;
+			TilPost expectedPost = fixtureTilPost(postId, user);
+			ReflectionTestUtils.setField(expectedPost, "id", postId);
+			
+			given(tilPostRepository.findById(postId))
+					.willAnswer(invocation -> {
+						Long inputPostId = (Long) invocation.getArguments()[0];
+						TilPost mockTilPost = fixtureTilPost(inputPostId, user);
+						ReflectionTestUtils.setField(mockTilPost, "id", postId);
+						
+						return Optional.of(mockTilPost);
+					});
+			
 			// when
-			Optional<TilPostDto.Info> tilPostInfoOptional = tilPostService.findById(request);
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(postId, user.getId());
 
 			// then
-			assertThat(tilPostInfoOptional).isNotEmpty();
+			assertThat(postOptional).isNotEmpty();
 
-			TilPostDto.Info expectedTilPostInfo = new TilPostDto.Info(tilPost1);
-			TilPostDto.Info actualTilPostInfo = tilPostInfoOptional.get();
-
-			assertThat(expectedTilPostInfo.getId()).isEqualTo(actualTilPostInfo.getId());
-			assertThat(expectedTilPostInfo.getTitle()).isEqualTo(actualTilPostInfo.getTitle());
-			assertThat(expectedTilPostInfo.getDate()).isEqualTo(actualTilPostInfo.getDate());
-			assertThat(expectedTilPostInfo.getContent()).isEqualTo(actualTilPostInfo.getContent());
+			TilPost actualPost = postOptional.get();
+			assertThat(actualPost).isEqualTo(expectedPost);
 		}
-
+		
 		@Test
-		@DisplayName("해당하는 til 게시글이 없다면, Optional.empty()를 반환한다.")
+		@DisplayName("요청된 id에 해당하는 til 게시글이 없다면, Optional.empty()를 반환한다.")
 		void returnOptionalEmptyIfNotExists() {
 			// given
-			Long request = 2L;
+			Long requestPostId = 2L;
 
 			Long postId = 1L;
-			TilPost tilPost = fixtureTilPost();
+			TilPost tilPost = fixtureTilPost(user);
 			ReflectionTestUtils.setField(tilPost, "id", postId);
 
 			given(tilPostRepository.findById(postId))
 					.willReturn(Optional.of(tilPost));
 
 			// when
-			Optional<TilPostDto.Info> tilPostInfoOptional = tilPostService.findById(request);
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(requestPostId, user.getId());
 
 			// then
-			assertThat(tilPostInfoOptional).isEmpty();
+			assertThat(postOptional).isEmpty();
+		}
+		
+		@Test
+		@DisplayName("til 게시글의 author가 인자로 들어온 유저 정보와 다르다면, Optional.empty()를 반환한다.")
+		void returnOptionalEmptyIfNotAuth() {
+			// given
+			Long postId = 1L;
+			TilPost tilPost = fixtureTilPost(user);
+			ReflectionTestUtils.setField(tilPost, "id", postId);
+
+			given(tilPostRepository.findById(postId))
+					.willReturn(Optional.of(tilPost));
+
+			// when
+			Optional<TilPost> postOptional = tilPostService.findByIdOfAuthor(postId, user.getId() + 1);
+
+			// then
+			assertThat(postOptional).isEmpty();
 		}
 	}
 	
@@ -140,27 +199,22 @@ class TilPostServiceTest {
 			List<TilPost> tilPosts = LongStream
 					.range(1, 6)
 					.mapToObj(id -> {
-						TilPost tilPost = fixtureTilPost(id);
+						TilPost tilPost = fixtureTilPost(id, user);
 						ReflectionTestUtils.setField(tilPost, "id", id);
 						return tilPost;
 					})
 					.collect(Collectors.toList());
 
-			given(tilPostRepository.findAll())
+			given(tilPostRepository.findByAuthor(user))
 					.willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+			List<TilPost> posts = tilPostService.findAll(user.getId());
 
 			// then
-			List<TilPostDto.Info> expectedTilPostInfos = tilPosts
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-
-			assertThat(tilPostInfos)
-					.hasSize(expectedTilPostInfos.size())
-					.hasSameElementsAs(expectedTilPostInfos);
+			assertThat(posts)
+					.hasSize(tilPosts.size())
+					.hasSameElementsAs(tilPosts);
 		}
 
 		@Test
@@ -169,14 +223,14 @@ class TilPostServiceTest {
 			// given
 			List<TilPost> tilPosts = new ArrayList<>();
 
-			given(tilPostRepository.findAll())
+			given(tilPostRepository.findByAuthor(user))
 					.willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findAll();
+			List<TilPost> posts = tilPostService.findAll(user.getId());
 
 			// then
-			assertThat(tilPostInfos).isEmpty();
+			assertThat(posts).isEmpty();
 		}
 	}
 
@@ -193,19 +247,22 @@ class TilPostServiceTest {
 						TilPost tilPost = fixtureTilPost(
 								"title" + id,
 								"content" + id,
-								LocalDate.of(2022, 2, (int) (1 + id))
+								LocalDate.of(2022, 2, (int) (1 + id)),
+								user
 						);
 						ReflectionTestUtils.setField(tilPost, "id", id);
 						return tilPost;
 					})
 					.collect(Collectors.toList());
+			
 			List<TilPost> tilPostsOfMar = LongStream
 					.range(1, 6)
 					.mapToObj(id -> {
 						TilPost tilPost = fixtureTilPost(
 								"title" + id,
 								"content" + id,
-								LocalDate.of(2022, 3, (int) (1 + id))
+								LocalDate.of(2022, 3, (int) (1 + id)),
+								user
 						);
 						ReflectionTestUtils.setField(tilPost, "id", id);
 						return tilPost;
@@ -215,35 +272,28 @@ class TilPostServiceTest {
 			YearMonth feb2022 = YearMonth.of(2022, 2);
 			YearMonth feb2023 = YearMonth.of(2022, 3);
 
-			given(tilPostRepository.findByDateBetween(
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
 					BDDMockito.eq(feb2022.atDay(1)),
 					BDDMockito.eq(feb2022.atEndOfMonth())
 			)).willReturn(tilPostsOfFeb);
-			given(tilPostRepository.findByDateBetween(
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
 					BDDMockito.eq(feb2023.atDay(1)),
 					BDDMockito.eq(feb2023.atEndOfMonth())
 			)).willReturn(tilPostsOfMar);
 
 			// when
-			List<TilPostDto.Info> tilPostInfosOfFeb = tilPostService.findByYearMonth(feb2022);
-			List<TilPostDto.Info> tilPostInfosOfMar = tilPostService.findByYearMonth(feb2023);
+			List<TilPost> postsOfFeb = tilPostService.findByYearMonth(user.getId(), feb2022);
+			List<TilPost> postSOfMar = tilPostService.findByYearMonth(user.getId(), feb2023);
 
 			// then
-			List<TilPostDto.Info> expectedTilPostInfosOfFeb = tilPostsOfFeb
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-			List<TilPostDto.Info> expectedTilPostInfosOfMar = tilPostsOfMar
-					.stream()
-					.map(TilPostDto.Info::new)
-					.collect(Collectors.toList());
-
-			assertThat(tilPostInfosOfFeb)
-					.hasSize(expectedTilPostInfosOfFeb.size())
-					.hasSameElementsAs(expectedTilPostInfosOfFeb);
-			assertThat(tilPostInfosOfMar)
-					.hasSize(expectedTilPostInfosOfMar.size())
-					.hasSameElementsAs(expectedTilPostInfosOfMar);
+			assertThat(postsOfFeb)
+					.hasSize(tilPostsOfFeb.size())
+					.hasSameElementsAs(tilPostsOfFeb);
+			assertThat(postSOfMar)
+					.hasSize(tilPostsOfMar.size())
+					.hasSameElementsAs(tilPostsOfMar);
 		}
 
 		@Test
@@ -254,14 +304,17 @@ class TilPostServiceTest {
 
 			YearMonth feb2022 = YearMonth.of(2022, 2);
 
-			given(tilPostRepository.findByDateBetween(any(), any()))
-					.willReturn(tilPosts);
+			given(tilPostRepository.findByAuthorAndDateBetween(
+					eq(user),
+					BDDMockito.eq(feb2022.atDay(1)),
+					BDDMockito.eq(feb2022.atEndOfMonth())
+			)).willReturn(tilPosts);
 
 			// when
-			List<TilPostDto.Info> tilPostInfos = tilPostService.findByYearMonth(feb2022);
+			List<TilPost> posts = tilPostService.findByYearMonth(user.getId(), feb2022);
 
 			// then
-			assertThat(tilPostInfos).isEmpty();
+			assertThat(posts).isEmpty();
 		}
 	}
 
@@ -278,11 +331,12 @@ class TilPostServiceTest {
 					"update content",
 					LocalDate.of(2222, 1, 1)
 			);
-			TilPost tilPost = fixtureTilPost();
+			TilPost tilPost = fixtureTilPost(user);
 			TilPost updatedPost = fixtureTilPost(
 					"update title",
 					"update content",
-					LocalDate.of(2222, 1, 1)
+					LocalDate.of(2222, 1, 1),
+					user
 			);
 
 			ReflectionTestUtils.setField(tilPost, "id", postId);
@@ -323,9 +377,7 @@ class TilPostServiceTest {
 					.willThrow(TilPostNotFoundException.class);
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> {
-				tilPostService.edit(postId, request);
-			});
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.edit(postId, request));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
@@ -340,7 +392,7 @@ class TilPostServiceTest {
 			// given
 			Long postId = 1L;
 
-			TilPost tilPost = fixtureTilPost();
+			TilPost tilPost = fixtureTilPost(user);
 			ReflectionTestUtils.setField(tilPost, "id", postId);
 
 
@@ -373,35 +425,47 @@ class TilPostServiceTest {
 					.willReturn(Optional.empty());
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> {
-				tilPostService.delete(postId);
-			});
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.delete(postId));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
 	}
 
-	private TilPost fixtureTilPost() {
+	private User fixtureUser() {
+		return fixtureUser("test123@test.com", "password1234");
+	}
+	
+	private User fixtureUser(String email, String password) {
+		return User.builder()
+				.email(email)
+				.password(password)
+				.build();
+	}
+	
+	private TilPost fixtureTilPost(User author) {
 		return fixtureTilPost(
 				"title",
 				"content",
-				LocalDate.of(2022, 2, 22)
+				LocalDate.of(2022, 2, 22),
+				author
 		);
 	}
 
-	private TilPost fixtureTilPost(Long id) {
+	private TilPost fixtureTilPost(Long id, User author) {
 		return fixtureTilPost(
 				"title" + id,
 				"content" + id,
-				LocalDate.of(2022, 2, 22)
+				LocalDate.of(2022, 2, 22),
+				author
 		);
 	}
 
-	private TilPost fixtureTilPost(String title, String content, LocalDate localDate) {
+	private TilPost fixtureTilPost(String title, String content, LocalDate localDate, User author) {
 		return TilPost.builder()
 				.title(title)
 				.content(content)
 				.date(localDate)
+				.author(author)
 				.build();
 	}
 
