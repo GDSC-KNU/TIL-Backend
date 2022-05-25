@@ -3,6 +3,7 @@ package gdsc.knu.til.service;
 import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.TilPostDto;
+import gdsc.knu.til.exception.PostForbiddenException;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
 import gdsc.knu.til.repository.UserRepository;
@@ -28,7 +29,7 @@ import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -111,9 +112,9 @@ class TilPostServiceTest {
 					});
 			
 			// when
-			Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
-				tilPostService.create(request, user.getId() + 1);
-			});
+			Exception exception = assertThrows(DataIntegrityViolationException.class, () -> 
+				tilPostService.create(request, user.getId() + 1)
+			);
 
 			// then
 			assertThat(exception.getMessage()).contains("user not exists");
@@ -346,19 +347,41 @@ class TilPostServiceTest {
 			given(tilPostRepository.save(BDDMockito.eq(updatedPost)))
 					.willReturn(updatedPost);
 			given(tilPostRepository.findById(postId))
-					.willReturn(Optional.of(tilPost))
-					.willReturn(Optional.of(updatedPost));
+					.willReturn(Optional.of(tilPost));
 
 			// when
-			Long editedPostId = tilPostService.edit(postId, request);
+			Long editedPostId = tilPostService.edit(user.getId(), postId, request);
 
 			// then
-			TilPost editedPost = tilPostRepository.findById(editedPostId).orElseThrow();
+			assertThat(editedPostId).isEqualTo(postId);
+			
+			verify(tilPostRepository, times(1)).save(BDDMockito.eq(updatedPost));
+			verify(tilPostRepository, times(1)).findById(anyLong());
+		}
+		
+		@Test
+		@DisplayName("게시글과 인자의 author가 다르다면, PostForbiddenException 예외를 throw한다.")
+		void throwPostForbiddenExceptionIfNotAuthor() {
+			// given
+			TilPostDto.Request request = fixtureTilPostRequest(
+					"update title",
+					"update content",
+					LocalDate.of(2222, 1, 1)
+			);
 
-			assertThat(editedPost.getId()).isEqualTo(updatedPost.getId());
-			assertThat(editedPost.getTitle()).isEqualTo(updatedPost.getTitle());
-			assertThat(editedPost.getDate()).isEqualTo(updatedPost.getDate());
-			assertThat(editedPost.getContent()).isEqualTo(updatedPost.getContent());
+			Long postId = 1L;
+			TilPost tilPost = fixtureTilPost(user);
+			ReflectionTestUtils.setField(tilPost, "id", postId);
+
+			// Mocking
+			given(tilPostRepository.findById(postId))
+					.willReturn(Optional.of(tilPost));
+
+			// when & then
+			assertThrows(PostForbiddenException.class, () -> 
+					tilPostService.edit(user.getId() + 1, postId, request));
+
+			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
 
 		@Test
@@ -377,7 +400,7 @@ class TilPostServiceTest {
 					.willThrow(TilPostNotFoundException.class);
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> tilPostService.edit(postId, request));
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.edit(user.getId(), postId, request));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}

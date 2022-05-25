@@ -143,19 +143,21 @@ public class TilPostController {
 			@ApiResponse(responseCode = "400", description = "부적절한 파라미터 - id 값은 정수이다."),
 			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
 	})
-	@PutMapping("/{id}")
+	@PutMapping("/{post_id}")
 	public ResponseEntity<Long> edit(
-			@PathVariable Long id,
+			@PathVariable("post_id") Long postId,
 			@Valid @RequestBody TilPostDto.Request requestDto,
 			BindingResult bindingResult) {
-
-		// TODO 로그인 정보를 기반으로 동작
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
 		}
 
-		return ResponseEntity.ok(tilPostService.edit(id, requestDto));
+		// TODO 로그인 정보를 기반으로 동작
+		// TODO JWT에서 유저 정보를 추출해내야함.
+		long userId = 1L;
+
+		return ResponseEntity.ok(tilPostService.edit(userId, postId, requestDto));
 	}
 
 	@Tag(name = "Til Post")
