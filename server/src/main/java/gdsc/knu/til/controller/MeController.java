@@ -41,8 +41,6 @@ public class MeController {
 		LocalDate end = LocalDate.now();
 		LocalDate start = end.minusMonths(6);
 
-		System.out.println("start = " + start);
-
 		List<NumberOfPostsPerDay> numberOfPostsPerDay = userService.getNumberOfPostsPerDay(userId, start, end);
 		
 		return ResponseEntity.ok(new NumberOfPPDResponseDTO(numberOfPostsPerDay));
