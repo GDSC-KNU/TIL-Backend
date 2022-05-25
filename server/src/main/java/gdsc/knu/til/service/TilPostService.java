@@ -80,7 +80,7 @@ public class TilPostService {
 	}
 
 	@Transactional
-	public Long edit(Long authorId, Long postId, TilPostDto.Request requestDto) throws TilPostNotFoundException {
+	public Long edit(Long authorId, Long postId, TilPostDto.Request requestDto) throws TilPostNotFoundException, PostForbiddenException {
 		User author = userRepository.getById(authorId);
 		
 		TilPost tilPost = tilPostRepository.findById(postId)
@@ -100,10 +100,16 @@ public class TilPostService {
 	}
 
 	@Transactional
-	public void delete(Long postId) throws TilPostNotFoundException {
+	public void delete(Long authorId, Long postId) throws TilPostNotFoundException, PostForbiddenException {
+		User author = userRepository.getById(authorId);
+
 		TilPost tilPost = tilPostRepository.findById(postId)
 				.orElseThrow(TilPostNotFoundException::new);
 
+		if (!tilPost.getAuthor().equals(author)) {
+			throw new PostForbiddenException();
+		}
+		
 		tilPostRepository.delete(tilPost);
 	}
 }

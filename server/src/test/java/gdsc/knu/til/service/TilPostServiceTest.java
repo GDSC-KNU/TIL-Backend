@@ -427,7 +427,7 @@ class TilPostServiceTest {
 					.willReturn(Optional.empty());
 
 			// when
-			tilPostService.delete(postId);
+			tilPostService.delete(user.getId(), postId);
 
 
 			// then
@@ -437,6 +437,24 @@ class TilPostServiceTest {
 			verify(tilPostRepository, times(1)).delete(BDDMockito.isA(TilPost.class));
 		}
 
+		@Test
+		@DisplayName("게시글과 인자의 author가 다르다면, PostForbiddenException 예외를 throw한다.")
+		void throwPostForbiddenExceptionIfNotAuthor() {
+			// given
+			Long postId = 1L;
+			TilPost tilPost = fixtureTilPost(user);
+			ReflectionTestUtils.setField(tilPost, "id", postId);
+
+			// Mocking
+			given(tilPostRepository.findById(postId))
+					.willReturn(Optional.of(tilPost));
+
+			// when & then
+			assertThrows(PostForbiddenException.class, () -> tilPostService.delete(user.getId() + 1, postId));
+
+			verify(tilPostRepository, times(1)).findById(anyLong());
+		}
+		
 		@Test
 		@DisplayName("해당하는 게시글이 없다면, TilPostNotFoundException를 Throw한다.")
 		void deleteIfNotExists() {
@@ -448,7 +466,7 @@ class TilPostServiceTest {
 					.willReturn(Optional.empty());
 
 			// when & then
-			assertThrows(TilPostNotFoundException.class, () -> tilPostService.delete(postId));
+			assertThrows(TilPostNotFoundException.class, () -> tilPostService.delete(user.getId(), postId));
 
 			verify(tilPostRepository, times(1)).findById(anyLong());
 		}
