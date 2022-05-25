@@ -3,6 +3,7 @@ package gdsc.knu.til.service;
 import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.TilPostDto;
+import gdsc.knu.til.exception.PostForbiddenException;
 import gdsc.knu.til.exception.TilPostNotFoundException;
 import gdsc.knu.til.repository.TilPostRepository;
 import gdsc.knu.til.repository.UserRepository;
@@ -79,9 +80,15 @@ public class TilPostService {
 	}
 
 	@Transactional
-	public Long edit(Long postId, TilPostDto.Request requestDto) throws TilPostNotFoundException {
+	public Long edit(Long authorId, Long postId, TilPostDto.Request requestDto) throws TilPostNotFoundException, PostForbiddenException {
+		User author = userRepository.getById(authorId);
+		
 		TilPost tilPost = tilPostRepository.findById(postId)
 				.orElseThrow(TilPostNotFoundException::new);
+		
+		if (!tilPost.getAuthor().equals(author)) {
+			throw new PostForbiddenException();
+		}
 
 		tilPost.changeInfo(
 				requestDto.getTitle(),
@@ -93,10 +100,16 @@ public class TilPostService {
 	}
 
 	@Transactional
-	public void delete(Long postId) throws TilPostNotFoundException {
+	public void delete(Long authorId, Long postId) throws TilPostNotFoundException, PostForbiddenException {
+		User author = userRepository.getById(authorId);
+
 		TilPost tilPost = tilPostRepository.findById(postId)
 				.orElseThrow(TilPostNotFoundException::new);
 
+		if (!tilPost.getAuthor().equals(author)) {
+			throw new PostForbiddenException();
+		}
+		
 		tilPostRepository.delete(tilPost);
 	}
 }
