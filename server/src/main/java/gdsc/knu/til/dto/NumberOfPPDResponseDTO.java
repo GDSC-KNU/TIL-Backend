@@ -13,5 +13,5 @@ import java.util.List;
 public class NumberOfPPDResponseDTO {
 	
 	@Schema(description = "날짜와 그 날짜의 게시글 개수를 담고있는 리스트")
-	private final List<NumberOfPostsPerDay> data;
+	private final List<NumberOfPostsOfDay> data;
 }

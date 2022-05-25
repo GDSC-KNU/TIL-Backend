@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class NumberOfPostsPerDay {
+public class NumberOfPostsOfDay {
 	
 	private final LocalDate date;
 	private final Long number;
