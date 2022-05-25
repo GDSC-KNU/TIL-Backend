@@ -53,7 +53,7 @@ public class TilPostController {
 
 		// TODO 로그인 정보를 기반으로 동작
 		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 2L;
+		long userId = 1L;
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
