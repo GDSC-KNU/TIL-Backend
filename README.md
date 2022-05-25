@@ -16,8 +16,15 @@ TIL 애플리케이션의 백엔드 영역
 ### Data
 - Python
 
-## Api 문서
-[PostMan API Document](https://documenter.getpostman.com/view/13315664/UyxdJogT)
+### 배포
+- Heroku
+
+## API 문서
+- [PostMan Docs](https://documenter.getpostman.com/view/13315664/UyxdJogT)
+- [Swagger Docs](https://gdsc-knu-til.herokuapp.com/swagger-ui/index.html)
 
 ## Git Strategy & Convention
 [Git Strategy & Convention Wiki](https://github.com/GDSC-KNU/TIL-Backend/wiki/Git-Strategy-&-Convention-Wiki)
+
+## Heroku 배포 정보 문서
+[Heroku 배포 Wiki](https://github.com/GDSC-KNU/TIL-Backend/wiki/Heroku-%EB%B0%B0%ED%8F%AC)

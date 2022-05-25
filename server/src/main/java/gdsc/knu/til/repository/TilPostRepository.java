@@ -13,9 +13,15 @@ import java.util.List;
 public interface TilPostRepository extends JpaRepository<TilPost, Long> {
 	
 	List<TilPost> findByAuthor(User author);
-	
-	List<TilPost> findByAuthorAndDateBetween(User author, LocalDate date, LocalDate date2);
 
+	List<TilPost> findByAuthorAndDateBetween(User author, LocalDate start, LocalDate end);
+	List<TilPost> findByAuthorAndDateBetweenOrderByDate(User author, LocalDate start, LocalDate end);
+
+	@Query("select p.date, count(p) from TilPost p" + 
+			" where p.author = :author and p.date between :start and :end" + 
+			" group by p.date order by p.date")
+	List<List<Object>> countPostPerDate(@Param("author") User author, @Param("start")LocalDate start, @Param("end") LocalDate end);
+	
 	@Query("select p from TilPost p where p.author = :author and (p.title like %:keyword% or p.content like %:keyword%)")
 	List<TilPost> searchByKeyword(@Param("author") User author, @Param("keyword") String keyword, Pageable pageable);
 }
