@@ -35,6 +35,12 @@ public class GlobalExceptionHandler {
 		log.error("MissingRequestValueException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.MISSING_PARAM);
 	}
+	
+	@ExceptionHandler(value = { PostForbiddenException.class })
+	public ResponseEntity<ErrorResponse> handleConvertRequestException(PostForbiddenException ex) {
+		log.error("MissingRequestValueException : {}", ex.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.POST_FORBIDDEN);
+	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleException(Exception ex){
