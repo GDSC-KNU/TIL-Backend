@@ -28,7 +28,7 @@ public class JwtTokenProvider {
     
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private final long tokenValidTime = 60 * 60 * 1000L; // 토큰 유효시간
+    private final long tokenValidTime = 24 * 60 * 60 * 1000L; // 토큰 유효시간, Refresh Token이 없으니 길게...
     private final UserDetailsService userDetailsService;
 
     @PostConstruct
