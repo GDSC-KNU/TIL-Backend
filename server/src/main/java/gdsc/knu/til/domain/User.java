@@ -1,37 +1,43 @@
 package gdsc.knu.til.domain;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
-@Table(name = "temp_users")
+@Table(name = "users")
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(length = 20, nullable = false)
-	private String email;
+	private String account;
 	
-	@Column(length = 20, nullable = false)
 	private String password;
 
+	@CreatedDate
+	private LocalDateTime createdAt;
+
+	@LastModifiedDate
+	private LocalDateTime lastModifiedAt;
+
+	@Enumerated(EnumType.STRING)
+	private Role role;
+	
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private final Set<TilPost> tilPosts = new LinkedHashSet<>();
-
-	@Builder
-	public User(String email, String password) {
-		this.email = email;
-		this.password = password;
-	}
 
 	@Override
 	public boolean equals(Object o) {
