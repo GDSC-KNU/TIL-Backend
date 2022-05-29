@@ -66,12 +66,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // login 없이 접근 허용 하는 url
-                .antMatchers("/auth/**").permitAll()
+//                .antMatchers("/auth/**").permitAll()
                 // '/admin'의 경우 ADMIN 권한이 있는 사용자만 접근이 가능
-                .antMatchers("/admin").hasRole("ADMIN")
+//                .antMatchers("/admin").hasRole("ADMIN")
                 // 그 외 모든 요청은 인증과정 필요
-                .anyRequest().authenticated()
-        
+//                .anyRequest().authenticated()
+                .anyRequest().permitAll()
+                
                 .and()
                 .apply(new JwtSecurityConfig(jwtTokenProvider));
     }
