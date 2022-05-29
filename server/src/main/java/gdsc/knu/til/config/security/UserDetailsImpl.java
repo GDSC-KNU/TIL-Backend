@@ -1,11 +1,11 @@
-package gdsc.knu.til.security;
+package gdsc.knu.til.config.security;
 
-import gdsc.knu.til.model.User;
 import gdsc.knu.til.model.Role;
+import gdsc.knu.til.model.User;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,9 +34,10 @@ public class UserDetailsImpl implements UserDetails {
         return user.getAccount();
     }
 
-
-    // public String getUser(){ return user.toString();}
-
+    public User getUser() {
+        return user;
+    }
+    
     @Override
     public boolean isAccountNonExpired() {
         return true;

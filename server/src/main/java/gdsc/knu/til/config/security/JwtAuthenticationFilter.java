@@ -1,4 +1,4 @@
-package gdsc.knu.til.security;
+package gdsc.knu.til.config.security;
 
 import gdsc.knu.til.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;

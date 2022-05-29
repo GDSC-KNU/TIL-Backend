@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -23,9 +24,11 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     @Value("{$spring.datasource.secretKey}")
-    private String secretKey ;
+    private String secretKey;
+    
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private long tokenValidTime = 30 * 60 * 1000L; // 토큰 유효시간
+    private final long tokenValidTime = 60 * 60 * 1000L; // 토큰 유효시간
     private final UserDetailsService userDetailsService;
 
     @PostConstruct
@@ -47,7 +50,7 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
-
+        
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -56,7 +59,11 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     public boolean validateToken(String jwtToken) {
