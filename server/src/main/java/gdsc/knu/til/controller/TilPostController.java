@@ -1,5 +1,6 @@
 package gdsc.knu.til.controller;
 
+import gdsc.knu.til.config.security.UserDetailsImpl;
 import gdsc.knu.til.domain.TilPost;
 import gdsc.knu.til.dto.TilPostDto;
 import gdsc.knu.til.dto.TilPostSearchRequestDto;
@@ -18,6 +19,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,11 +52,10 @@ public class TilPostController {
 	@PostMapping("")
 	public ResponseEntity<Long> create(
 			@Valid @RequestBody TilPostDto.Request requestDto,
+			@AuthenticationPrincipal UserDetailsImpl userDetails,
 			BindingResult bindingResult) {
 
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
+		long userId = userDetails.getUserId();
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
@@ -70,10 +72,10 @@ public class TilPostController {
 			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
 	})
 	@GetMapping("/{post_id}")
-	public ResponseEntity<TilPostDto.DetailResponse> findById(@PathVariable("post_id") Long postId) {
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
+	public ResponseEntity<TilPostDto.DetailResponse> findById(@PathVariable("post_id") Long postId,
+	                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		
+		long userId = userDetails.getUserId();
 
 		TilPost tilPost = tilPostService.findByIdOfAuthor(postId, userId).orElseThrow(TilPostNotFoundException::new);
 		TilPostDto.Info tilPostInfo = new TilPostDto.Info(tilPost);
@@ -91,12 +93,12 @@ public class TilPostController {
 			@Parameter(description = "게시글을 가져올 달")
 			@RequestParam(required = false)
 			@DateTimeFormat(pattern = "yyyy-MM")
-					Optional<YearMonth> yearMonth
+					Optional<YearMonth> yearMonth,
+			@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
 
+		long userId = userDetails.getUserId();
+		
 		List<TilPost> tilPosts;
 		if (yearMonth.isPresent()) {
 			tilPosts = tilPostService.findByYearMonth(userId, yearMonth.get());
@@ -121,14 +123,14 @@ public class TilPostController {
 					TilPostSearchRequestDto request,
 			@PageableDefault(sort = "date", direction = Sort.Direction.DESC)
 					Pageable pageable,
+			@AuthenticationPrincipal UserDetailsImpl userDetails,
 			BindingResult bindingResult
 	) {
 		if (bindingResult.hasErrors()) {
 			throw new MissingParamException();
 		}
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
+
+		long userId = userDetails.getUserId();
 
 		List<TilPost> tilPosts = tilPostService.search(userId, request.getQuery(), pageable);
 
@@ -147,16 +149,15 @@ public class TilPostController {
 	public ResponseEntity<Long> edit(
 			@PathVariable("post_id") Long postId,
 			@Valid @RequestBody TilPostDto.Request requestDto,
+			@AuthenticationPrincipal UserDetailsImpl userDetails,
 			BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidParamException();
 		}
-
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
-
+		
+		long userId = userDetails.getUserId();
+		
 		return ResponseEntity.ok(tilPostService.edit(userId, postId, requestDto));
 	}
 
@@ -168,10 +169,9 @@ public class TilPostController {
 			@ApiResponse(responseCode = "404", description = "해당 게시글이 존재하지 않는다.")
 	})
 	@DeleteMapping("/{post_id}")
-	public ResponseEntity<Void> delete(@PathVariable("post_id") Long postId) {
-		// TODO 로그인 정보를 기반으로 동작
-		// TODO JWT에서 유저 정보를 추출해내야함.
-		long userId = 1L;
+	public ResponseEntity<Void> delete(@PathVariable("post_id") Long postId,
+	                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+		long userId = userDetails.getUserId();
 
 		tilPostService.delete(userId, postId);
 
