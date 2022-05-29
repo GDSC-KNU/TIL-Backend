@@ -476,9 +476,9 @@ class TilPostServiceTest {
 		return fixtureUser("test123@test.com", "password1234");
 	}
 	
-	private User fixtureUser(String email, String password) {
+	private User fixtureUser(String account, String password) {
 		return User.builder()
-				.email(email)
+				.account(account)
 				.password(password)
 				.build();
 	}

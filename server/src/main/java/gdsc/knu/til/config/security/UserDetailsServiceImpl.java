@@ -1,6 +1,6 @@
 package gdsc.knu.til.config.security;
 
-import gdsc.knu.til.model.User;
+import gdsc.knu.til.domain.User;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

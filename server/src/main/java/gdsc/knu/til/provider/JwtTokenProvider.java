@@ -1,6 +1,6 @@
 package gdsc.knu.til.provider;
 
-import gdsc.knu.til.model.Role;
+import gdsc.knu.til.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

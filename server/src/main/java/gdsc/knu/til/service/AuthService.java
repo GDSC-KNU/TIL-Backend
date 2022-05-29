@@ -1,19 +1,17 @@
 package gdsc.knu.til.service;
 
+import gdsc.knu.til.domain.Role;
+import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
-import gdsc.knu.til.model.Role;
-import gdsc.knu.til.model.User;
 import gdsc.knu.til.provider.JwtTokenProvider;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import java.time.LocalDateTime;

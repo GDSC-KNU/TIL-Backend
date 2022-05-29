@@ -1,4 +1,4 @@
-package gdsc.knu.til.model;
+package gdsc.knu.til.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package gdsc.knu.til.config.security;
 
-import gdsc.knu.til.model.Role;
-import gdsc.knu.til.model.User;
+import gdsc.knu.til.domain.Role;
+import gdsc.knu.til.domain.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
