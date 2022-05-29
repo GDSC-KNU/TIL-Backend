@@ -1,6 +1,7 @@
 package gdsc.knu.til.controller;
 
 
+import gdsc.knu.til.config.security.UserDetailsImpl;
 import gdsc.knu.til.dto.MaxPostNumAndDateResDTO;
 import gdsc.knu.til.dto.NumberOfPPDResponseDTO;
 import gdsc.knu.til.dto.NumberOfPostsOfDay;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,9 +36,10 @@ public class MeController {
 			description = "현재 로그인된 사용자의 최근 6개월 동안의 각 날짜별 게시글 작성수를 반환한다.")
 	@ApiResponses({ @ApiResponse(responseCode = "200") })
 	@GetMapping("/number_of_posts_per_day")
-	public ResponseEntity<NumberOfPPDResponseDTO> numberOfPostsPerDay() {
-		long userId = 1L;
-
+	public ResponseEntity<NumberOfPPDResponseDTO> numberOfPostsPerDay(
+			@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		long userId = userDetails.getUserId();
+		
 		LocalDate end = LocalDate.now();
 		LocalDate start = end.minusMonths(6);
 
@@ -53,9 +56,10 @@ public class MeController {
 			@ApiResponse(responseCode = "404", description = "작성한 게시글이 전혀 없는 경우, 404 상태코드를 응답한다.")
 	})
 	@GetMapping("/maximum_post_number_date")
-	public ResponseEntity<MaxPostNumAndDateResDTO> maximumPostNumberDate() {
-		long userId = 1L;
-
+	public ResponseEntity<MaxPostNumAndDateResDTO> maximumPostNumberDate(
+			@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		long userId = userDetails.getUserId();
+		
 		LocalDate end = LocalDate.now();
 		LocalDate start = end.minusMonths(6);
 
