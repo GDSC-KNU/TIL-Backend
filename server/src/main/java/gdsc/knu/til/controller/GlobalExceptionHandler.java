@@ -9,6 +9,8 @@ import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.management.openmbean.KeyAlreadyExistsException;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -47,6 +49,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleUnauthorizedException(Exception ex) {
 		log.error("MissingRequestValueException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(value = { KeyAlreadyExistsException.class })
+	public ResponseEntity<ErrorResponse> handleExistsAccount(Exception ex) {
+		log.error("MissingRequestValueException : {}", ex.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.EXISTS_ACCOUNT);
 	}
 
 	@ExceptionHandler(Exception.class)

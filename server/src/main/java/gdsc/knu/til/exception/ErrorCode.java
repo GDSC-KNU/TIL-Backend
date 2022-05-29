@@ -21,6 +21,9 @@ public enum ErrorCode {
 	/* 404 NOT_FOUND */
 	TIL_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다."),
 	
+	/* 409 CONFLICT */
+	EXISTS_ACCOUNT(HttpStatus.CONFLICT, "이미 존재하는 계정입니다"),
+	
 	/* 5xx INTER_SERVER_ERROR */
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
 	;
