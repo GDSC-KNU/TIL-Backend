@@ -5,14 +5,11 @@ import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
 import gdsc.knu.til.service.AuthService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-
-import javax.management.openmbean.KeyAlreadyExistsException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,8 +23,6 @@ public class AuthController {
 
             return authService.login(request);
     }
-
-
 
     @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
     public String signup(@RequestBody UserSignupRequestDto request) {

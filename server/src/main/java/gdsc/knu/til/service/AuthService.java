@@ -4,10 +4,10 @@ import gdsc.knu.til.domain.Role;
 import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
+import gdsc.knu.til.exception.NotExistsUserException;
 import gdsc.knu.til.provider.JwtTokenProvider;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
 
     public String signup(UserSignupRequestDto request) {
         boolean existMember = userRepository.existsByAccount(request.getAccount());
@@ -42,12 +41,12 @@ public class AuthService {
     public String login(JwtRequestDto request) throws Exception {
         User user = userRepository.findByAccount(request.getAccount())
                 .orElseThrow(()-> new UsernameNotFoundException("Not signed up User"));
+        
         if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
-            throw new IllegalArgumentException();
+            throw new NotExistsUserException();
         }
+        
         return jwtTokenProvider.createToken(user.getAccount(), user.getRole());
-
-
     }
 
 }

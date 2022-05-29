@@ -25,7 +25,6 @@ public class User {
 	@Column(length = 20, nullable = false)
 	private String account;
 	
-	@Column(length = 20, nullable = false)
 	private String password;
 
 	@CreatedDate
