@@ -37,9 +37,8 @@
 - Heroku
 
 ## ScreenShots
-![login](./docs/login.png)
-![regist](./docs/regist.png)
-
+<img src="./docs/login.png" width="50%">
+<img src="./docs/regist.png" width="50%">
 
 ## API 문서
 - [PostMan Docs](https://documenter.getpostman.com/view/13315664/UyxdJogT)
