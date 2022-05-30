@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,13 +35,15 @@ public class UserService {
 		).collect(Collectors.toList());
 	}
 	
-	public Optional<NumberOfPostsOfDay> getMaximumPostNumberDate(Long userId, LocalDate start, LocalDate end) {
+	public List<NumberOfPostsOfDay> getMaximumPostNumberDateList(Long userId, LocalDate start, LocalDate end) {
 		User user = userRepository.getById(userId);
 
 		List<List<Object>> counts = tilPostRepository.countPostPerDate(user, start, end);
 		
-		 return counts.stream()
+		return counts.stream()
 				.map(obj -> new NumberOfPostsOfDay((LocalDate) obj.get(0), (Long) obj.get(1)))
-				.max(Comparator.comparing(NumberOfPostsOfDay::getNumber));
+			    .sorted(Comparator.comparing(NumberOfPostsOfDay::getNumber, Comparator.reverseOrder()))
+			    .limit(5)
+			    .collect(Collectors.toList());
 	}
 }
