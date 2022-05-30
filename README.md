@@ -68,7 +68,9 @@ JWT를 사용한 회원가입과 로그인을 구현하였다.
 마크다운 형식으로 게시글을 작성할 수 있다.
 
 ### 마이 페이지
-<img src="./docs/mypage.png" width="50%">
+<img src="./docs/mypage.png" width="50%">  
+
+최근 작성한 TIL 통계를 조회할 수 있다.
 
 
 ## API 문서
