@@ -26,19 +26,50 @@
 * 최근 6개월 동안 게시글 가장 많이 쓴 날 조회
 
 ## 기술 스택
-### Server
+### FrontEnd
+- Kotlin
+- Android Studio
+  - Android Target SDK 31
+  - Andorid Minm SDK 26
+### BackEnd - Server
 - Java Spring Boot
 - JPA
 - MySQL
-### Data
+### BackEnd - Data
 - Python
 
-### 배포
+### 서버 배포
 - Heroku
 
 ## ScreenShots
+### 인증 처리
 <img src="./docs/login.png" width="50%">
 <img src="./docs/regist.png" width="50%">
+
+JWT를 사용한 회원가입과 로그인을 구현하였다.
+
+### 게시글 목록
+<img src="./docs/calender.png" width="50%">
+<img src="./docs/list.png" width="50%">
+
+달력 혹은 리스트 형태로 게시글의 목록을 조회할 수 있다.
+
+### 게시글 검색
+<img src="./docs/search.png" width="50%">
+
+키워드를 사용하여 게시글을 검색할 수 있다.
+### 게시글 상세보기
+<img src="./docs/detail.png" width="50%">
+
+작성한 게시글을 마크다운이 적용된 모습으로 볼 수 있다.
+### 게시글 작성
+<img src="./docs/write.png" width="50%">
+
+마크다운 형식으로 게시글을 작성할 수 있다.
+
+### 마이 페이지
+<img src="./docs/mypage.png" width="50%">
+
 
 ## API 문서
 - [PostMan Docs](https://documenter.getpostman.com/view/13315664/UyxdJogT)
