@@ -1,29 +1,25 @@
 package gdsc.knu.til.config.security;
 
-import gdsc.knu.til.domain.Role;
 import gdsc.knu.til.domain.User;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Getter
 public class UserDetailsImpl implements UserDetails {
-    private static final String ROLE_PREFIX = "ROLE_";
     private final User user;
+    private final Collection<GrantedAuthority> authorities = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        Role role = user.getRole();
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(ROLE_PREFIX + role.toString());
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(authority);
-
         return authorities;
     }
+    
     @Override
     public String getPassword() {
         return user.getPassword();

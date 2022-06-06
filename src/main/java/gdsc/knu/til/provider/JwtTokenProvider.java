@@ -1,6 +1,5 @@
 package gdsc.knu.til.provider;
 
-import gdsc.knu.til.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -36,9 +35,8 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     } // JWT 토큰 생성
 
-    public String createToken(String userAccount, Role roles) {
+    public String createToken(String userAccount) {
         Claims claims = Jwts.claims().setSubject(userAccount); // JWT payload 에 저장되는 정보단위
-        claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
