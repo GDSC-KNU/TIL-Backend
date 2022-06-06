@@ -14,6 +14,7 @@ public enum ErrorCode {
 	/* 401 */
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
 	NOT_EXISTS_USER(HttpStatus.UNAUTHORIZED, "존재하지 않는 사용자입니다."),
+	WRONG_ACCOUNT_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "아이디 혹은 비밀번호가 잘못되었습니다."),
 	
 	/* 403 FORBIDDEN */
 	POST_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 게시글에 대한 권한이 없습니다."),

@@ -4,7 +4,7 @@ import gdsc.knu.til.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -45,10 +45,10 @@ public class GlobalExceptionHandler {
 		return ErrorResponse.toResponseEntity(ErrorCode.POST_FORBIDDEN);
 	}
 	
-	@ExceptionHandler(value = { NotExistsUserException.class, UsernameNotFoundException.class})
+	@ExceptionHandler(value = { BadCredentialsException.class })
 	public ResponseEntity<ErrorResponse> handleUnauthorizedException(Exception ex) {
-		log.error("MissingRequestValueException : {}", ex.getMessage());
-		return ErrorResponse.toResponseEntity(ErrorCode.UNAUTHORIZED);
+		log.error("MissingRequestValueException : {}", ErrorCode.WRONG_ACCOUNT_OR_PASSWORD.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.WRONG_ACCOUNT_OR_PASSWORD);
 	}
 	
 	@ExceptionHandler(value = { KeyAlreadyExistsException.class })

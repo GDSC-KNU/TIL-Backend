@@ -4,11 +4,10 @@ import gdsc.knu.til.domain.Role;
 import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
-import gdsc.knu.til.exception.NotExistsUserException;
 import gdsc.knu.til.provider.JwtTokenProvider;
 import gdsc.knu.til.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,12 +37,12 @@ public class AuthService {
                 .createdAt(LocalDateTime.now())
                 .build()).getAccount() ;
     }
-    public String login(JwtRequestDto request) throws Exception {
+    public String login(JwtRequestDto request)  {
         User user = userRepository.findByAccount(request.getAccount())
-                .orElseThrow(()-> new UsernameNotFoundException("Not signed up User"));
+                .orElseThrow(()-> new BadCredentialsException("아이디 혹은 비밀번호가 잘못되었습니다."));
         
         if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
-            throw new NotExistsUserException();
+            throw new BadCredentialsException("아이디 혹은 비밀번호가 잘못되었습니다.");
         }
         
         return jwtTokenProvider.createToken(user.getAccount(), user.getRole());
