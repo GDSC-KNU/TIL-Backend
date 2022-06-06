@@ -1,7 +1,10 @@
 package gdsc.knu.til.controller;
 
-import gdsc.knu.til.exception.*;
+import gdsc.knu.til.exception.ErrorCode;
+import gdsc.knu.til.exception.ErrorResponse;
+import gdsc.knu.til.exception.ResponseException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.PropertyAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,45 +18,33 @@ import javax.management.openmbean.KeyAlreadyExistsException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(value = { TilPostNotFoundException.class })
-	public ResponseEntity<ErrorResponse> handleTilPostNotFoundException(TilPostNotFoundException ex) {
-		log.error("handleTilPostNotFoundException : {}", ex.getErrorCode());
+	@ExceptionHandler(value = { ResponseException.class })
+	public ResponseEntity<ErrorResponse> handleResponseException(ResponseException ex) {
+		log.error("handleResponseException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ex.getErrorCode());
 	}
 	
-	@ExceptionHandler(value = { InvalidParamException.class })
-	public ResponseEntity<ErrorResponse> handleInvalidParamException(InvalidParamException ex) {
-		log.error("handleInvalidParamException : {}", ex.getErrorCode());
-		return ErrorResponse.toResponseEntity(ex.getErrorCode());
-	}
-	
-	@ExceptionHandler(value = { HttpMessageNotReadableException.class })
-	public ResponseEntity<ErrorResponse> handleConvertRequestException(HttpMessageNotReadableException ex) {
+	@ExceptionHandler(value = { HttpMessageNotReadableException.class, PropertyAccessException.class })
+	public ResponseEntity<ErrorResponse> handleConvertRequestException(Exception ex) {
 		log.error("handleConvertRequestException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_PARAM);
 	}
 
-	@ExceptionHandler(value = { MissingRequestValueException.class, MissingParamException.class })
-	public ResponseEntity<ErrorResponse> handleConvertRequestException(Exception ex) {
-		log.error("MissingRequestValueException : {}", ex.getMessage());
+	@ExceptionHandler(value = { MissingRequestValueException.class })
+	public ResponseEntity<ErrorResponse> handleMissingRequestValueException(Exception ex) {
+		log.error("handleMissingRequestValueException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.MISSING_PARAM);
-	}
-	
-	@ExceptionHandler(value = { PostForbiddenException.class })
-	public ResponseEntity<ErrorResponse> handleConvertRequestException(PostForbiddenException ex) {
-		log.error("MissingRequestValueException : {}", ex.getMessage());
-		return ErrorResponse.toResponseEntity(ErrorCode.POST_FORBIDDEN);
 	}
 	
 	@ExceptionHandler(value = { BadCredentialsException.class })
 	public ResponseEntity<ErrorResponse> handleUnauthorizedException(Exception ex) {
-		log.error("MissingRequestValueException : {}", ErrorCode.WRONG_ACCOUNT_OR_PASSWORD.getMessage());
+		log.error("handleUnauthorizedException : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.WRONG_ACCOUNT_OR_PASSWORD);
 	}
 	
 	@ExceptionHandler(value = { KeyAlreadyExistsException.class })
 	public ResponseEntity<ErrorResponse> handleExistsAccount(Exception ex) {
-		log.error("MissingRequestValueException : {}", ex.getMessage());
+		log.error("handleExistsAccount : {}", ex.getMessage());
 		return ErrorResponse.toResponseEntity(ErrorCode.EXISTS_ACCOUNT);
 	}
 
