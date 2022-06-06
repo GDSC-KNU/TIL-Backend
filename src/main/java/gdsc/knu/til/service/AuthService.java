@@ -1,6 +1,5 @@
 package gdsc.knu.til.service;
 
-import gdsc.knu.til.domain.Role;
 import gdsc.knu.til.domain.User;
 import gdsc.knu.til.dto.JwtRequestDto;
 import gdsc.knu.til.dto.UserSignupRequestDto;
@@ -33,7 +32,6 @@ public class AuthService {
         return userRepository.save(User.builder()
                 .account(request.getAccount())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
                 .createdAt(LocalDateTime.now())
                 .build()).getAccount() ;
     }
@@ -45,7 +43,7 @@ public class AuthService {
             throw new BadCredentialsException("아이디 혹은 비밀번호가 잘못되었습니다.");
         }
         
-        return jwtTokenProvider.createToken(user.getAccount(), user.getRole());
+        return jwtTokenProvider.createToken(user.getAccount());
     }
 
 }

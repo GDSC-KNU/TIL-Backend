@@ -32,9 +32,6 @@ public class User {
 
 	@LastModifiedDate
 	private LocalDateTime lastModifiedAt;
-
-	@Enumerated(EnumType.STRING)
-	private Role role;
 	
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private final Set<TilPost> tilPosts = new LinkedHashSet<>();

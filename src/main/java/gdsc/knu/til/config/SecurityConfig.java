@@ -67,8 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // login 없이 접근 허용 하는 url
                 .antMatchers("/auth/**").permitAll()
-                // '/admin'의 경우 ADMIN 권한이 있는 사용자만 접근이 가능
-                .antMatchers("/admin").hasRole("ADMIN")
                 // 그 외 모든 요청은 인증과정 필요
                 .anyRequest().authenticated()
                 
@@ -77,7 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         // 정적인 파일 요청에 대해 무시
         web.ignoring().antMatchers(AUTH_WHITELIST);
     }
