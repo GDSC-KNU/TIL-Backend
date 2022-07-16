@@ -74,8 +74,8 @@ JWT를 사용한 회원가입과 로그인을 구현하였다.
 
 
 ## API 문서
-- [PostMan Docs](https://documenter.getpostman.com/view/13315664/UyxdJogT)
-- [Swagger Docs](https://gdsc-knu-til.herokuapp.com/swagger-ui/index.html)
+- [~~PostMan Docs~~](https://documenter.getpostman.com/view/13315664/UyxdJogT)
+- [~~Swagger Docs~~](https://gdsc-knu-til.herokuapp.com/swagger-ui/index.html)
 
 ## Git Strategy & Convention
 [Git Strategy & Convention Wiki](https://github.com/GDSC-KNU/TIL-Backend/wiki/Git-Strategy-&-Convention-Wiki)
